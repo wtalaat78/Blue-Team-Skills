@@ -6,6 +6,9 @@
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
 [![EULA Required](https://img.shields.io/badge/EULA-Required-orange.svg)](./EULA.txt)
 [![CVE Library](https://img.shields.io/badge/CVE%20Library-Daily%20Updates-blue.svg)](./references/cve-library/)
+[![User Guide](https://img.shields.io/badge/User%20Guide-Read%20Here-green.svg)](./GUIDE.md)
+
+> 📖 **New to this skill? Start with the [User Guide (GUIDE.md)](./GUIDE.md)** — it covers installation, step-by-step usage, all assessment modes, report reading, CVE library search, and common use cases with examples.
 
 ---
 
@@ -87,6 +90,7 @@ Blue-Team-Skills/
 ├── EULA.txt                            ← End User License Agreement (READ FIRST)
 ├── LICENSE                             ← Proprietary License Summary
 ├── README.md                           ← This file
+├── GUIDE.md                            ← User Guide (start here)
 ├── skills/
 │   ├── internal-appsec-testing/
 │   │   └── SKILL.md                    ← Main AppSec skill (v3.0)
