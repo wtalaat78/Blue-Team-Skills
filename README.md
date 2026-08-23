@@ -205,7 +205,7 @@ Blue-Team-Skills/
 
 ## ⚖️ Legal & Disclaimer
 
-**Copyright (c) 2025–2026 Waleed Talaat / Techwaves-egy. All rights reserved.**
+**Copyright (c) 2025–2026 Waleed Talaat All rights reserved.**
 
 This software is proprietary. Use is strictly subject to the [End User License Agreement (EULA)](./EULA.txt).
 
