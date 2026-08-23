@@ -1,0 +1,383 @@
+END USER LICENSE AGREEMENT (EULA)
+Blue-Team-Skills Repository & Internal Application Security Testing Skill
+=========================================================================
+
+Copyright (c) 2025–2026 Waleed Talaat / Techwaves-egy
+All rights reserved.
+
+Last Updated: 2026-08-23
+
+PLEASE READ THIS END USER LICENSE AGREEMENT ("AGREEMENT") CAREFULLY BEFORE
+ACCESSING, DOWNLOADING, INSTALLING, OR USING ANY CONTENT, SCRIPTS, SKILLS,
+WORKFLOWS, OR DOCUMENTATION CONTAINED IN THIS REPOSITORY (COLLECTIVELY,
+THE "SOFTWARE").
+
+BY ACCESSING OR USING THE SOFTWARE, YOU ("USER") AGREE TO BE LEGALLY BOUND
+BY THE TERMS OF THIS AGREEMENT. IF YOU DO NOT AGREE TO THESE TERMS, DO NOT
+ACCESS OR USE THE SOFTWARE.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 1 — DEFINITIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.1 "Software" means all content in this repository, including but not
+    limited to: security skills (SKILL.md files), AI agent instructions,
+    Python scripts, GitHub Actions workflows, CVE library data files,
+    documentation, templates, checklists, and any derivative materials.
+
+1.2 "Author" means Waleed Talaat and Techwaves-egy, the creators and
+    copyright holders of the Software.
+
+1.3 "User" means any individual or legal entity accessing, downloading,
+    cloning, forking, or using the Software in any manner.
+
+1.4 "Authorized Target" means a system, application, network, or
+    infrastructure for which the User possesses explicit, documented,
+    written authorization from the system owner to conduct security testing.
+
+1.5 "Security Testing" means any activity involving the evaluation,
+    probing, scanning, enumeration, or analysis of a system's security
+    posture, including but not limited to: vulnerability scanning,
+    penetration testing, code review, dynamic analysis, and fuzzing.
+
+1.6 "CVE Library" means the vulnerability data files located in
+    references/cve-library/, populated via the NVD/NIST API, and
+    maintained as a reference resource within this repository.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 2 — GRANT OF LICENSE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2.1 Subject to full compliance with this Agreement, the Author grants the
+    User a limited, non-exclusive, non-transferable, revocable license to:
+
+    (a) Use the Software for legitimate, authorized defensive security
+        activities within the User's own organization or on Authorized
+        Targets for which written authorization exists;
+
+    (b) Adapt and modify the Software for the User's internal security
+        program, provided all modifications remain subject to this Agreement;
+
+    (c) Distribute the Software internally within the User's organization,
+        provided this Agreement is included with all copies.
+
+2.2 This license does NOT permit:
+
+    (a) Use of the Software against any system, application, network, or
+        infrastructure without prior, documented, written authorization
+        from the system owner;
+
+    (b) Sub-licensing, selling, or commercially redistributing the Software
+        or any derivative thereof without express written consent from the
+        Author;
+
+    (c) Removing or altering any copyright notices, attribution statements,
+        or this Agreement from any copy of the Software;
+
+    (d) Using the Software to develop offensive tools, exploit kits,
+        malware, or any material intended to harm, defraud, or unlawfully
+        access third-party systems;
+
+    (e) Representing the Software or its outputs as official security
+        certifications, audits, or compliance attestations.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 3 — AUTHORIZED USE AND LEGAL COMPLIANCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3.1 MANDATORY AUTHORIZATION REQUIREMENT
+
+    The User MUST obtain explicit, written, verifiable authorization from
+    the rightful owner of any target system before conducting any security
+    testing activity using or informed by this Software.
+
+    Acceptable authorization forms include:
+    - Signed penetration testing agreement / scope of work
+    - Written statement from the system owner (CISO, CTO, or authorized
+      representative) explicitly granting permission to test named systems
+    - Formal bug bounty program terms that explicitly permit active testing
+      within a defined scope
+
+3.2 PROHIBITED TARGETS
+
+    The following are NEVER authorized targets, regardless of circumstances:
+
+    (a) Systems owned by third parties without their express consent;
+    (b) Government or critical national infrastructure systems;
+    (c) Healthcare systems containing protected health information (PHI)
+        unless formal written authorization exists under applicable law;
+    (d) Financial systems without written authorization from the institution;
+    (e) Systems where testing may cause service disruption to the public;
+    (f) Any system you do not own or do not have explicit permission to test.
+
+3.3 LEGAL COMPLIANCE
+
+    The User is solely responsible for ensuring that all use of the Software
+    complies with:
+
+    (a) All applicable local, national, and international laws and
+        regulations, including but not limited to:
+        - Computer Fraud and Abuse Act (CFAA), United States
+        - Computer Misuse Act 1990, United Kingdom
+        - Directive on Attacks Against Information Systems, European Union
+        - Egyptian Telecommunications Regulation Law No. 10 of 2003
+        - Egyptian Anti-Cyber and Information Technology Crime Law
+          No. 175 of 2018
+        - Any other applicable cybercrime, data protection, or computer
+          access law in the User's jurisdiction;
+
+    (b) Any applicable data protection regulations including GDPR, HIPAA,
+        PCI-DSS, and equivalent frameworks;
+
+    (c) The terms of employment or engagement between the User and their
+        organization;
+
+    (d) Any contractual obligations the User has accepted.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 4 — CVE LIBRARY AND THIRD-PARTY DATA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4.1 The CVE Library data contained in references/cve-library/ is sourced
+    from the National Vulnerability Database (NVD) operated by NIST and
+    from CVE.org operated by MITRE Corporation under the Common
+    Vulnerabilities and Exposures (CVE) Program.
+
+4.2 CVE data is subject to the following third-party terms:
+
+    (a) NVD data use is governed by NIST terms:
+        https://nvd.nist.gov/general/nvd-dashboard
+
+    (b) CVE data use is governed by MITRE CVE Terms of Use:
+        https://www.cve.org/Legal/TermsOfUse
+
+4.3 The Author makes no representation that the CVE Library is complete,
+    accurate, current, or suitable for any particular purpose. CVE data
+    is provided as a reference resource only and does not constitute a
+    formal vulnerability assessment, security audit, or compliance report.
+
+4.4 The User must independently verify CVE data applicability to their
+    specific environment before taking remediation action.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 5 — DISCLAIMER OF WARRANTIES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.1 THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTY
+    OF ANY KIND, EXPRESS OR IMPLIED.
+
+5.2 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE AUTHOR EXPRESSLY
+    DISCLAIMS ALL WARRANTIES, INCLUDING BUT NOT LIMITED TO:
+
+    (a) IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+        PURPOSE, AND NON-INFRINGEMENT;
+
+    (b) WARRANTIES THAT THE SOFTWARE IS FREE FROM ERRORS, DEFECTS, VIRUSES,
+        OR OTHER HARMFUL COMPONENTS;
+
+    (c) WARRANTIES THAT SECURITY ASSESSMENTS CONDUCTED USING THE SOFTWARE
+        WILL BE COMPLETE, ACCURATE, OR SUFFICIENT TO IDENTIFY ALL
+        VULNERABILITIES IN A TARGET SYSTEM;
+
+    (d) WARRANTIES THAT THE SOFTWARE WILL MEET THE USER'S REQUIREMENTS OR
+        THAT ITS OPERATION WILL BE UNINTERRUPTED OR ERROR-FREE;
+
+    (e) WARRANTIES REGARDING THE ACCURACY, CURRENCY, OR COMPLETENESS OF
+        CVE LIBRARY DATA OR ANY AI-GENERATED SECURITY FINDINGS.
+
+5.3 THE USER ACKNOWLEDGES THAT NO SECURITY TOOL, SKILL, OR AI-ASSISTED
+    ASSESSMENT IS A SUBSTITUTE FOR PROFESSIONAL HUMAN SECURITY EXPERTISE
+    AND THAT THE SOFTWARE DOES NOT GUARANTEE THE DETECTION OF ALL
+    VULNERABILITIES.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 6 — LIMITATION OF LIABILITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+6.1 TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL
+    THE AUTHOR, CONTRIBUTORS, OR ANY AFFILIATED PARTIES BE LIABLE FOR ANY:
+
+    (a) DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, CONSEQUENTIAL,
+        OR PUNITIVE DAMAGES;
+
+    (b) LOSS OF REVENUE, PROFITS, BUSINESS OPPORTUNITIES, DATA, GOODWILL,
+        OR ANTICIPATED SAVINGS;
+
+    (c) DAMAGE TO SYSTEMS, NETWORKS, OR DATA ARISING FROM USE OR MISUSE
+        OF THE SOFTWARE;
+
+    (d) LEGAL PENALTIES, FINES, REGULATORY ACTIONS, OR CIVIL LIABILITY
+        INCURRED BY THE USER AS A RESULT OF UNAUTHORIZED OR UNLAWFUL
+        USE OF THE SOFTWARE;
+
+    (e) COSTS OF SUBSTITUTE SERVICES, PROCUREMENT OF REPLACEMENT GOODS,
+        OR LOSS OF USE.
+
+    WHETHER BASED ON CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT
+    LIABILITY, OR ANY OTHER LEGAL THEORY, EVEN IF THE AUTHOR HAS BEEN
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+6.2 INDEMNIFICATION
+
+    The User agrees to indemnify, defend, and hold harmless the Author,
+    Techwaves-egy, and their respective officers, employees, agents, and
+    successors from and against any and all claims, damages, losses,
+    liabilities, costs, and expenses (including reasonable legal fees)
+    arising out of or in connection with:
+
+    (a) The User's use or misuse of the Software;
+    (b) The User's violation of this Agreement;
+    (c) The User's violation of any applicable law or regulation;
+    (d) Any unauthorized security testing conducted by the User using
+        guidance, templates, or instructions from the Software;
+    (e) Any security breach, data loss, or system damage resulting from
+        the User's use of the Software.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 7 — ETHICAL USE AND RESPONSIBLE DISCLOSURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+7.1 The User agrees to use the Software exclusively for ethical, defensive,
+    and authorized security purposes consistent with:
+
+    (a) The EC-Council Code of Ethics;
+    (b) The (ISC)² Code of Ethics;
+    (c) The OWASP Principles of Ethical Security Testing;
+    (d) The PTES (Penetration Testing Execution Standard) ethical guidelines.
+
+7.2 If the User discovers a vulnerability in a third-party system during
+    authorized testing, the User agrees to:
+
+    (a) Follow responsible disclosure practices;
+    (b) Report findings only to the system owner or authorized parties;
+    (c) Not publicly disclose vulnerabilities without the system owner's
+        consent unless a responsible disclosure deadline has elapsed;
+    (d) Not exploit discovered vulnerabilities beyond what is necessary
+        to demonstrate the security impact to the authorized stakeholder.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 8 — AI-GENERATED CONTENT DISCLAIMER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+8.1 This Software is designed to be used with AI/LLM-powered agents.
+    The Author makes no warranty regarding the accuracy, completeness,
+    or reliability of any security findings, scores, reports, or
+    recommendations generated by AI systems using this Software.
+
+8.2 All AI-generated security assessments, vulnerability reports, and
+    remediation recommendations MUST be reviewed and validated by a
+    qualified human security professional before:
+
+    (a) Being presented to clients, customers, or management;
+    (b) Being used as the basis for remediation decisions;
+    (c) Being submitted as part of a formal security audit or compliance
+        assessment;
+    (d) Being shared externally in any form.
+
+8.3 The Author is not responsible for decisions made based on AI-generated
+    outputs produced through the use of this Software.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 9 — INTELLECTUAL PROPERTY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+9.1 All content, methodologies, scoring frameworks, templates, report
+    structures, test case libraries, and skill instructions in this
+    repository are the intellectual property of Waleed Talaat /
+    Techwaves-egy and are protected by applicable copyright laws.
+
+9.2 The User may not:
+
+    (a) Reproduce, republish, or redistribute the Software or substantial
+        portions thereof without attribution to the Author;
+
+    (b) Claim authorship or ownership of the Software or any derivative;
+
+    (c) Use the Author's name, Techwaves-egy brand, or associated marks
+        to endorse or promote products or services without prior written
+        permission.
+
+9.3 Attribution: Any permitted reproduction must include:
+    "Source: Blue-Team-Skills by Waleed Talaat / Techwaves-egy
+     https://github.com/wtalaat78/Blue-Team-Skills"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 10 — TERMINATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+10.1 This license is effective until terminated.
+
+10.2 The Author may terminate this Agreement immediately and without notice
+     if the User:
+
+     (a) Breaches any term of this Agreement;
+     (b) Uses the Software for unauthorized, illegal, or unethical purposes;
+     (c) Fails to maintain required authorizations for security testing.
+
+10.3 Upon termination, the User must immediately cease all use of the
+     Software and destroy all copies in their possession.
+
+10.4 Sections 5 (Disclaimer of Warranties), 6 (Limitation of Liability),
+     7 (Ethical Use), 8 (AI Disclaimer), and 9 (Intellectual Property)
+     shall survive termination of this Agreement.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 11 — GOVERNING LAW AND DISPUTE RESOLUTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+11.1 This Agreement shall be governed by and construed in accordance with
+     the laws of the Arab Republic of Egypt, without regard to its conflict
+     of law provisions.
+
+11.2 Any dispute arising from or relating to this Agreement shall be
+     subject to the exclusive jurisdiction of the competent courts in Cairo,
+     Egypt.
+
+11.3 If any provision of this Agreement is found unenforceable, the
+     remaining provisions shall continue in full force and effect.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLE 12 — ENTIRE AGREEMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+12.1 This Agreement constitutes the entire agreement between the User and
+     the Author with respect to the Software and supersedes all prior
+     agreements, understandings, and representations.
+
+12.2 The Author reserves the right to modify this Agreement at any time.
+     Continued use of the Software following publication of an updated
+     Agreement constitutes acceptance of the revised terms.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CONTACT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For licensing inquiries, permissions, or legal notices:
+
+  Author:       Waleed Talaat
+  Organization: Techwaves-egy
+  Repository:   https://github.com/wtalaat78/Blue-Team-Skills
+  GitHub:       https://github.com/wtalaat78
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BY USING THIS SOFTWARE, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD,
+AND AGREE TO BE BOUND BY ALL TERMS AND CONDITIONS OF THIS AGREEMENT.
+
+IF YOU ARE USING THIS SOFTWARE ON BEHALF OF AN ORGANIZATION, YOU REPRESENT
+THAT YOU HAVE THE AUTHORITY TO BIND THAT ORGANIZATION TO THESE TERMS.
+
+Copyright (c) 2025-2026 Waleed Talaat / Techwaves-egy. All rights reserved.
