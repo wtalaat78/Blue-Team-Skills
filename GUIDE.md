@@ -16,7 +16,7 @@
 
 1. [What This Skill Does](#1-what-this-skill-does)
 2. [Prerequisites](#2-prerequisites)
-3. [Installation](#3-installation)
+3. [Installation & Updates](#3-installation--updates)
 4. [How to Invoke the Skill](#4-how-to-invoke-the-skill)
 5. [Step-by-Step Usage Walkthrough](#5-step-by-step-usage-walkthrough)
 6. [Assessment Modes](#6-assessment-modes)
@@ -62,29 +62,126 @@ Before using this skill, ensure you have:
 
 ---
 
-## 3. Installation
+## 3. Installation & Updates
 
-The skill is already installed if you are reading this from the repository.  
-To verify installation locations:
+### How Updates Work
 
-### Project Level (this repository)
 ```
-.agents/skills/internal-appsec-testing/SKILL.md
-.agents/skills/appsec/SKILL.md
+GitHub (source of truth)
+        │
+        │  3 automatic sync triggers:
+        │  ① git pull      → post-merge hook copies SKILL.md instantly
+        │  ② Daily 07:00 AM → Scheduled Task pulls + syncs automatically
+        │  ③ Manual         → run scripts\update.ps1 anytime
+        │
+        ▼
+~\.gemini\config\skills\internal-appsec-testing\SKILL.md  ← AGY reads this
+~\.gemini\config\skills\appsec\SKILL.md                   ← /appsec shortcut
+.agents\skills\internal-appsec-testing\SKILL.md           ← project-level copy
 ```
 
-### Global Level (all your projects)
-```
-C:\Users\<YourUsername>\.gemini\config\skills\internal-appsec-testing\SKILL.md
-C:\Users\<YourUsername>\.gemini\config\skills\appsec\SKILL.md
+---
+
+### First-Time Setup (Run Once Per Machine)
+
+**Step 1 — Clone the repository**
+```powershell
+git clone https://github.com/wtalaat78/Blue-Team-Skills.git
+cd Blue-Team-Skills
 ```
 
-### Verify the skill is discoverable
-Open AGY and type:
+**Step 2 — Run the installer** (as your normal user — no admin needed)
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
+.\scripts\install.ps1
 ```
-/appsec
+
+The installer will:
+- ✅ Copy the skill to `~\.gemini\config\skills\` (global AGY install)
+- ✅ Install a Git post-merge hook (auto-sync on every `git pull`)
+- ✅ Register a **Windows Scheduled Task** to pull updates daily at 07:00 AM
+- ✅ Write a version stamp to track your installed version
+
+**Step 3 — Verify**
+Open AGY and type `/appsec` — you should see the AppSec Engineer role activate.
+
+---
+
+### Getting Updates
+
+#### Option A — Automatic (recommended)
+Do nothing. The **Windows Scheduled Task** runs every morning at 07:00 AM:
 ```
-If the skill loads, you will see the agent adopt the AppSec Engineer role.
+Task name: BlueTeamSkills-DailyUpdate
+Schedule:  Daily at 07:00 AM
+Action:    git pull + sync SKILL.md to global install
+```
+
+#### Option B — On every `git pull` (automatic via hook)
+Whenever you run `git pull` in the repo folder, the post-merge hook fires:
+```powershell
+git pull   # ← SKILL.md automatically synced after this
+```
+
+#### Option C — Manual update (anytime)
+```powershell
+.\scripts\update.ps1
+```
+Options:
+```powershell
+.\scripts\update.ps1 -Verbose    # show detailed file-by-file output
+.\scripts\update.ps1 -SkipPull   # sync files without git pull
+```
+
+---
+
+### Check Your Current Version
+```powershell
+# See what version you have installed
+Get-Content .skill-version.json
+
+# See the update log
+Get-Content .update-log.txt -Tail 20
+```
+
+---
+
+### Manage the Scheduled Task
+```powershell
+# Run the update right now
+Start-ScheduledTask -TaskName "BlueTeamSkills-DailyUpdate"
+
+# Check last run status
+Get-ScheduledTask -TaskName "BlueTeamSkills-DailyUpdate" | Get-ScheduledTaskInfo
+
+# Disable auto-updates
+Disable-ScheduledTask -TaskName "BlueTeamSkills-DailyUpdate"
+
+# Remove completely
+Unregister-ScheduledTask -TaskName "BlueTeamSkills-DailyUpdate" -Confirm:$false
+```
+
+---
+
+### Install Without Scheduled Task (Silent Mode)
+```powershell
+.\scripts\install.ps1 -SkipScheduledTask
+```
+
+---
+
+### Uninstall
+```powershell
+# Remove global skill installs
+Remove-Item "$env:USERPROFILE\.gemini\config\skills\internal-appsec-testing" -Recurse -Force
+Remove-Item "$env:USERPROFILE\.gemini\config\skills\appsec" -Recurse -Force
+
+# Remove scheduled task
+Unregister-ScheduledTask -TaskName "BlueTeamSkills-DailyUpdate" -Confirm:$false
+
+# Remove git hook
+Remove-Item ".git\hooks\post-merge" -Force
+```
 
 ---
 

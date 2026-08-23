@@ -1,0 +1,15 @@
+# Generated / runtime files — do not commit
+.skill-install.json
+.skill-version.json
+.update-log.txt
+references/cve-library/.last_run
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# OS
+.DS_Store
+Thumbs.db
