@@ -78,6 +78,13 @@ Write-OK "Installed: $SkillDest\SKILL.md"
 Copy-Item "$AppsecSrc\SKILL.md" "$AppsecDest\SKILL.md" -Force
 Write-OK "Installed: $AppsecDest\SKILL.md"
 
+# Also sync to Claude Code if ~/.claude directory exists
+$ClaudeDir = "$env:USERPROFILE\.claude"
+if (Test-Path $ClaudeDir) {
+    Copy-Item "$RepoRoot\CLAUDE.md" "$ClaudeDir\CLAUDE.md" -Force
+    Write-OK "Installed Claude Code config: $ClaudeDir\CLAUDE.md"
+}
+
 # -- Step 2: Install Git post-merge hook ---------------------------------------
 
 Write-Header "Step 2 of 4 - Installing Git post-merge hook"

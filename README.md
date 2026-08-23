@@ -1,10 +1,11 @@
 # Blue-Team-Skills
 
-**Enterprise Application Security Testing Skill for AI Agents**  
+**Universal Application Security Testing Skill Suite for AI Agents**  
 *Senior AppSec Engineer · Blue Team · Authorized Security Testing*
 
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](./LICENSE)
 [![EULA Required](https://img.shields.io/badge/EULA-Required-orange.svg)](./EULA.txt)
+[![Universal Agent Support](https://img.shields.io/badge/Agents-Universal%20Compatibility-brightgreen.svg)](#-agent-compatibility-matrix)
 [![CVE Library](https://img.shields.io/badge/CVE%20Library-Daily%20Updates-blue.svg)](./references/cve-library/)
 [![User Guide](https://img.shields.io/badge/User%20Guide-Read%20Here-green.svg)](./GUIDE.md)
 
@@ -21,12 +22,31 @@
 
 ## Overview
 
-`Blue-Team-Skills` is a professional AI agent skill suite for enterprise Blue Teams and Senior Application Security Engineers. It equips AI coding assistants (such as Google Antigravity / AGY) with rigorous security testing methodologies aligned to OWASP Top 10, CVSS v3.1, STRIDE threat modeling, and defensive engineering standards.
+`Blue-Team-Skills` is a **universal AI agent security skill suite** designed for enterprise Blue Teams and Senior Application Security Engineers. It equips **any AI coding assistant or autonomous agent** with rigorous security testing methodologies aligned to OWASP Top 10, CVSS v3.1, STRIDE threat modeling, and defensive engineering standards.
 
-### Key Capabilities
+---
+
+## 🤖 Agent Compatibility Matrix
+
+`Blue-Team-Skills` supports all major AI coding agents, IDEs, and LLM frameworks out of the box:
+
+| AI Agent / IDE | Configuration File | Discovery / Activation |
+| :--- | :--- | :--- |
+| **Google Antigravity (AGY)** | `skills/internal-appsec-testing/SKILL.md` | `/appsec` or `/internal-appsec-testing` |
+| **Claude Code (CLI & Desktop)** | [`CLAUDE.md`](./CLAUDE.md) | Auto-discovered in repo or `~/.claude/CLAUDE.md` |
+| **Cursor IDE** | [`.cursorrules`](./.cursorrules) & [`.cursor/rules/`](./.cursor/rules/) | Native automatic rule indexing |
+| **Windsurf / Cascade** | [`.windsurfrules`](./.windsurfrules) | Native automatic rule indexing |
+| **GitHub Copilot (Chat & Workspace)** | [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) | Auto-detected in repo |
+| **Roo Code / Cline / Devin / AutoGPT** | [`AGENTS.md`](./AGENTS.md) | Universal agent instructions standard |
+| **ChatGPT / Custom GPTs / API Agents** | [`prompts/appsec-system-prompt.md`](./prompts/appsec-system-prompt.md) | Portable system prompt |
+
+---
+
+## Key Capabilities
 
 | Feature | Description |
 | :--- | :--- |
+| **Universal Multi-Agent Support** | Ready for Antigravity, Claude Code, Cursor, Windsurf, Copilot, Cline, and custom agents |
 | **Two-Phase Workflow** | Mandatory Pre-Fix Assessment Report before applying any code remediation |
 | **11-Domain Scoring** | 0–10 rating per domain with granular, rubric-driven scoring |
 | **Weighted Scoring** | Application profile weighting: Payments, Healthcare, SaaS, Admin, API |
@@ -44,114 +64,91 @@
 
 ## 🚀 Installation & Setup
 
-You can install the skill **globally** (accessible across all projects on your machine) or **per-project**.
+### Method 1: Automated Installer
 
-### Method 1: Automated Installation (Recommended for Windows)
-
-The automated installer configures global discovery in Antigravity, sets up automatic Git sync hooks, and configures a daily background updater.
-
+#### Windows (PowerShell)
 ```powershell
-# 1. Clone the repository
+# 1. Clone repository
 git clone https://github.com/wtalaat78/Blue-Team-Skills.git
 cd Blue-Team-Skills
 
-# 2. Allow local script execution (if not already enabled)
+# 2. Allow local script execution
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
 
-# 3. Run the installer
+# 3. Run installer
 .\scripts\install.ps1
 ```
 
-#### What `install.ps1` does automatically:
-1. **Installs Global Skills**: Copies `internal-appsec-testing` and `/appsec` shortcut into `~/.gemini/config/skills/`.
-2. **Installs Git Post-Merge Hook**: Ensures running `git pull` automatically updates your local global skills.
-3. **Registers Daily Scheduled Task**: Runs background sync every morning at 07:00 AM.
-4. **Writes Install Stamp**: Records version metadata for version tracking.
+#### Linux / macOS / WSL (Bash)
+```bash
+# 1. Clone repository
+git clone https://github.com/wtalaat78/Blue-Team-Skills.git
+cd Blue-Team-Skills
+
+# 2. Run installer
+bash scripts/install.sh
+```
+
+#### What the installer configures automatically:
+1. **Global Antigravity & Agent Skills**: Installs to `~/.gemini/config/skills/` and `.agents/skills/`.
+2. **Claude Code Global Config**: Syncs to `~/.claude/CLAUDE.md` if Claude is installed.
+3. **IDE Rules**: Configures `.cursorrules`, `.cursor/rules/`, `.windsurfrules`, and `.github/copilot-instructions.md`.
+4. **Git Auto-Update Hook**: Ensures `git pull` automatically syncs the latest skills across all locations.
+5. **Background Updater**: Registers daily background synchronization (07:00 AM).
 
 ---
 
-### Method 2: Manual Installation (Windows / Linux / macOS)
+### Method 2: Manual Setup for Specific Agents
 
-If you prefer manual configuration or are using Linux / macOS:
+#### For Claude Code
+The repository root contains [`CLAUDE.md`](./CLAUDE.md). Claude Code will automatically detect and follow it when running in this workspace.
 
-#### Option A — Global Installation (Available across all projects)
-Copy the skill files into your user agent config directory:
+#### For Cursor IDE
+The repository root contains [`.cursorrules`](./.cursorrules) and [`.cursor/rules/internal-appsec-testing.mdc`](./.cursor/rules/internal-appsec-testing.mdc). Cursor will automatically apply these rules.
 
-* **Windows:**
-  ```powershell
-  New-Item -ItemType Directory -Path "$env:USERPROFILE\.gemini\config\skills\internal-appsec-testing" -Force
-  New-Item -ItemType Directory -Path "$env:USERPROFILE\.gemini\config\skills\appsec" -Force
+#### For Windsurf (Cascade)
+The repository root contains [`.windsurfrules`](./.windsurfrules). Windsurf will automatically apply these instructions.
 
-  Copy-Item ".\skills\internal-appsec-testing\SKILL.md" "$env:USERPROFILE\.gemini\config\skills\internal-appsec-testing\SKILL.md" -Force
-  Copy-Item ".\skills\appsec\SKILL.md" "$env:USERPROFILE\.gemini\config\skills\appsec\SKILL.md" -Force
-  ```
+#### For GitHub Copilot
+The repository contains [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) for custom Copilot Chat behavior.
 
-* **Linux / macOS:**
-  ```bash
-  mkdir -p ~/.gemini/config/skills/internal-appsec-testing ~/.gemini/config/skills/appsec
-  cp skills/internal-appsec-testing/SKILL.md ~/.gemini/config/skills/internal-appsec-testing/SKILL.md
-  cp skills/appsec/SKILL.md ~/.gemini/config/skills/appsec/SKILL.md
-  ```
+#### For Generic Agents (Cline, Roo Code, AutoGPT, Devin)
+[`AGENTS.md`](./AGENTS.md) provides the universal instruction specification.
 
-#### Option B — Project-Level Installation (Current workspace only)
-Place the skill inside the target project repository under `.agents/skills/`:
-
-```
-your-project-repo/
-└── .agents/
-    └── skills/
-        ├── internal-appsec-testing/
-        │   └── SKILL.md
-        └── appsec/
-            └── SKILL.md
-```
+#### For ChatGPT / Custom GPTs / LangChain / CrewAI
+Copy and paste the portable prompt from [`prompts/appsec-system-prompt.md`](./prompts/appsec-system-prompt.md) into your custom instructions or agent prompt template.
 
 ---
 
 ## ⚡ How to Use
 
-Once installed, open your AI coding assistant (Antigravity / AGY) and invoke the skill using slash commands or plain language:
+Invoke the security engineer persona in your favorite agent:
 
 ```text
+# Antigravity / Slash Commands:
 /appsec assess this repository for security vulnerabilities
-```
-```text
 /appsec perform a white-box assessment of src/controllers/OrderController.cs
-```
-```text
-/internal-appsec-testing review our GraphQL schema and auth middleware
-```
 
-### Live Self-Update on Invocation
-Every time you call `/appsec`, the skill performs a visible **Pre-Flight Self-Update** verifying Git sync and CVE library status:
-
-```text
----
-### 🔄 AppSec Skill — Live Self-Update & Verification
-[1/3] Git Remote Sync    : Pulling origin/main... (Already up to date: e042117)
-[2/3] Local Distribution : Synced -> ~/.gemini/config/skills/ & .agents/skills/
-[3/3] CVE Library Feed   : 28 Critical/High CVEs active (references/cve-library/)
-[Commit Version]         : e042117 | 2026-08-23 11:28:45
----
+# Claude Code / Cursor / Windsurf / Copilot / Generic Prompts:
+Perform a full AppSec security review on this codebase following the Two-Phase workflow.
+Audit our authentication and authorization logic for IDOR/BOLA vulnerabilities.
+Review our GraphQL schema and generate Sigma detection rules for abuse patterns.
 ```
 
 ---
 
 ## 🔄 Updating the Skill & CVE Library
 
-To manually pull the latest skills and CVE records from GitHub:
-
 ```powershell
-# Run the updater script
+# Windows
 .\scripts\update.ps1
 
-# Options:
-.\scripts\update.ps1 -Verbose    # Detailed file-by-file log
-.\scripts\update.ps1 -SkipPull   # Sync local files without pulling from Git
+# Linux / macOS
+bash scripts/update.sh
 ```
 
-To manually refresh the local CVE database from the NVD API:
-```powershell
+To refresh the local CVE intelligence database from the NVD/NIST API:
+```bash
 python -X utf8 scripts/update_cve_library.py
 ```
 
@@ -180,30 +177,28 @@ Blue-Team-Skills/
 ├── LICENSE                             ← Proprietary License Summary
 ├── README.md                           ← Main repository documentation & setup guide
 ├── GUIDE.md                            ← In-depth User Guide & methodology manual
+├── AGENTS.md                           ← Universal standard agent instructions
+├── CLAUDE.md                           ← Claude Code & Anthropic agent configuration
+├── .cursorrules                        ← Cursor IDE configuration
+├── .cursor/rules/                      ← Modern Cursor MDC rules
+├── .windsurfrules                      ← Windsurf (Codeium Cascade) configuration
+├── .github/
+│   ├── copilot-instructions.md         ← GitHub Copilot custom instructions
+│   └── workflows/
+│       └── daily-cve-update.yml        ← GitHub Actions daily CVE sync cron
+├── prompts/
+│   └── appsec-system-prompt.md         ← Portable prompt for ChatGPT, Custom GPTs, APIs
 ├── skills/
 │   ├── internal-appsec-testing/
-│   │   └── SKILL.md                    ← Main AppSec testing skill (v3.0)
+│   │   └── SKILL.md                    ← Main AppSec testing skill runbook (v3.0)
 │   └── appsec/
 │       └── SKILL.md                    ← Shortcut alias (/appsec)
-├── .agents/
-│   └── skills/
-│       ├── internal-appsec-testing/    ← Project-level agent discovery
-│       └── appsec/                     ← Project-level shortcut
 ├── references/
-│   └── cve-library/
-│       ├── README.md                   ← CVE index and statistics
-│       ├── authentication_and_session.md
-│       ├── authorization_and_idor_bola.md
-│       ├── input_validation_and_injection.md
-│       ├── file_upload_and_storage.md
-│       └── logging_and_soc_telemetry.md
-├── scripts/
-│   ├── install.ps1                     ← Automated one-time installer
-│   ├── update.ps1                      ← Skill sync & update utility
-│   └── update_cve_library.py           ← Live NVD/CVE.org feed updater
-└── .github/
-    └── workflows/
-        └── daily-cve-update.yml        ← GitHub Actions daily CVE sync cron
+│   └── cve-library/                    ← Daily-synced CVE database by domain
+└── scripts/
+    ├── install.ps1 / install.sh        ← Cross-platform automated installers
+    ├── update.ps1 / update.sh          ← Cross-platform auto-updaters
+    └── update_cve_library.py           ← Live NVD/CVE.org feed updater
 ```
 
 ---

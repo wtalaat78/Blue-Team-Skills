@@ -131,6 +131,13 @@ foreach ($pair in $SkillPairs) {
     }
 }
 
+# Sync Claude Code global config if ~/.claude exists
+$ClaudeDir = "$env:USERPROFILE\.claude"
+if (Test-Path $ClaudeDir) {
+    Copy-Item "$RepoRoot\CLAUDE.md" "$ClaudeDir\CLAUDE.md" -Force
+    Write-OK "Claude Code config: updated ($ClaudeDir\CLAUDE.md)"
+}
+
 # -- Step 3: Record current version -------------------------------------------
 
 $CurrentCommit  = git -C $RepoRoot rev-parse --short HEAD 2>$null
