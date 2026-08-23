@@ -585,11 +585,30 @@ tags: [attack.t1083, attack.t1078]
 
 ---
 
-## 7. Approval Gate
+## 7. Automated PDF Report Generation & Approval Gate
+
+### Branded PDF Report
+Every Phase 1 assessment automatically compiles a downloadable executive PDF report containing the official **Techwaves EGY** header, company logo, and contact info:
+
+- **Organization:** Techwaves EGY
+- **Contact:** info@techwaves-egy.com
+- **Logo:** `assets/techwaves-logo.jpg`
+
+```bash
+# Execute PDF generation command:
+python scripts/generate_appsec_pdf.py --output reports/Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf --app "[AppName]" --env "[Env]" --score [Score]
+```
+
+Display the direct local link in your chat response:
+> 📄 **PDF Report Generated:** [`Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf`](file:///d:/Techwaves-egy/Blue-Team-Skills/reports/Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf)
+
+---
+
+### Approval Gate
 > 🛑 **MANDATORY HARD STOP:** 
 > - **DO NOT call any file editing, write, or patch tools.**
 > - **DO NOT proceed to Phase 2 in the same turn.**
-> - **END YOUR TURN IMMEDIATELY** and ask: *"Phase 1 Pre-Fix Assessment Report is ready for review. Do you approve proceeding to Phase 2 (Defensive Remediation & Retesting)?"*
+> - **END YOUR TURN IMMEDIATELY** and ask: *"Phase 1 Pre-Fix Assessment Report and PDF are ready for review. Do you approve proceeding to Phase 2 (Defensive Remediation & Retesting)?"*
 ````
 
 ---

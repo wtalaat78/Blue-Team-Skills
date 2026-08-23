@@ -48,6 +48,7 @@
 | :--- | :--- |
 | **Universal Multi-Agent Support** | Ready for Antigravity, Claude Code, Cursor, Windsurf, Copilot, Cline, and custom agents |
 | **Two-Phase Workflow** | Mandatory Pre-Fix Assessment Report before applying any code remediation |
+| **Executive PDF Reports** | Auto-generates branded PDF reports with **Techwaves EGY** logo & contact (`info@techwaves-egy.com`) |
 | **11-Domain Scoring** | 0–10 rating per domain with granular, rubric-driven scoring |
 | **Weighted Scoring** | Application profile weighting: Payments, Healthcare, SaaS, Admin, API |
 | **STRIDE Threat Modeling** | Automated Data Flow Diagram & S/T/R/I/D/E analysis before testing |
