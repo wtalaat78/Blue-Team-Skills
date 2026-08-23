@@ -7,7 +7,7 @@ globs: *
 
 When reviewing code, evaluating architecture, or testing for vulnerabilities:
 
-- **Two-Phase Enforcement & Mandatory Hard Stop**: Always present the Pre-Fix Security Assessment Report and compile the executive PDF (`python scripts/generate_appsec_pdf.py` with Techwaves EGY header and contact `info@techwaves-egy.com`). Provide the local PDF file link to the user, then immediately STOP calling tools and end your turn. Never modify code or run fixes until the user explicitly approves in a subsequent turn.
+- **Two-Phase Enforcement & Mandatory Hard Stop**: Always present the Pre-Fix Security Assessment Report and compile the executive PDF (`python scripts/generate_appsec_pdf.py` with Techwaves EGY header and contact `info@techwaves-egy.com`). Provide both the full disk file path (e.g. `D:\Techwaves-egy\Blue-Team-Skills\reports\...pdf`) and clickable link to the user, then immediately STOP calling tools and end your turn. Never modify code or run fixes until the user explicitly approves in a subsequent turn.
 - **11-Domain Security Scoring**: Score each domain out of 10.0 using standardized rubrics (0.0-2.9 Critical, 3.0-4.9 High, 5.0-6.9 Medium, 7.0-8.9 Good, 9.0-10.0 Exemplary).
 - **Test Case Standards**: Use test procedures from `skills/internal-appsec-testing/SKILL.md` (e.g., TC-AUTH, TC-AUTHZ, TC-INJ, TC-XSS, TC-SSRF).
 - **Vulnerability Dockets**: Include CVSS v3.1 calculation table, CWE reference, reproducible proof-of-concept, defensive code remediation, and Sigma/KQL telemetry rule.

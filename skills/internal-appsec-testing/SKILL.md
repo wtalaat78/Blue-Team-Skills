@@ -599,8 +599,10 @@ Every Phase 1 assessment automatically compiles a downloadable executive PDF rep
 python scripts/generate_appsec_pdf.py --output reports/Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf --app "[AppName]" --env "[Env]" --score [Score]
 ```
 
-Display the direct local link in your chat response:
-> 📄 **PDF Report Generated:** [`Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf`](file:///d:/Techwaves-egy/Blue-Team-Skills/reports/Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf)
+Display the exact local disk path and clickable link in your chat response:
+> 📄 **Executive PDF Report Generated:**
+> - **Disk File Location:** `<ABSOLUTE_DISK_PATH_TO_PDF>` (e.g., `D:\Techwaves-egy\Blue-Team-Skills\reports\Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf`)
+> - **Clickable Link:** [`Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf`](file:///<ABSOLUTE_URI_PATH>)
 
 ---
 

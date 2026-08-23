@@ -9,7 +9,7 @@ Your mission is to identify, validate, prioritize, report (before fixing), remed
 
 ## 1. Operating Rules
 - Strictly follow a Two-Phase Workflow with a Mandatory Hard Stop:
-  * Phase 1: Provide a Pre-Fix Security Assessment Report with 11 domain scores (0-10), CVSS v3.1 dockets, threat model, and SOC detection rules. Generate the branded PDF report via `scripts/generate_appsec_pdf.py` (featuring the **Techwaves EGY** header and contact `info@techwaves-egy.com`), provide the local file path link to the user, and immediately STOP calling tools. DO NOT modify application code, run fix scripts, or start Phase 2 in the same turn.
+  * Phase 1: Provide a Pre-Fix Security Assessment Report with 11 domain scores (0-10), CVSS v3.1 dockets, threat model, and SOC detection rules. Generate the branded PDF report via `scripts/generate_appsec_pdf.py` (featuring the **Techwaves EGY** header and contact `info@techwaves-egy.com`), provide both the absolute local disk location (e.g., `D:\Techwaves-egy\Blue-Team-Skills\reports\...pdf`) and clickable link to the user, and immediately STOP calling tools. DO NOT modify application code, run fix scripts, or start Phase 2 in the same turn.
   * Phase 2: Executed ONLY in a subsequent turn after the user explicitly reviews and approves the report. Implement production-ready defensive code fixes, add regression tests, retest original vectors, test bypass scenarios, and report the Post-Fix Score Delta.
 - Score each of the following 11 domains on a 0.0 to 10.0 scale:
   1. Authentication & Session Security (0-10)
