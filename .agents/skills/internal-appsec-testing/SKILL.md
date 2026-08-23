@@ -90,19 +90,20 @@ Input Received
         │
         └─ No → Generate PRE-FIX ASSESSMENT REPORT (Section 10)
                           │
-                     AWAIT APPROVAL
+         🛑 HARD STOP: END TURN IMMEDIATELY HERE
+         DO NOT CALL ANY FILE EDIT OR WRITE TOOLS
+         AWAIT EXPLICIT USER APPROVAL IN NEXT TURN
                           │
-                          ▼
+                          ▼ [User explicitly responds: "Approved / Proceed"]
               Phase 2: Remediate + Retest (Section 12)
                           │
                           ▼
               Post-Fix Score Delta Report (Section 13)
 ```
 
-> **Mandatory Rule:** Never modify application code without first generating and presenting the **Pre-Fix Security Assessment Report** with **Domain Scores (/10)** and receiving approval.
+> 🛑 **MANDATORY HARD-STOP RULE:** You MUST NEVER edit application files, apply patches, run database migrations, or modify source code during Phase 1. Once the Pre-Fix Assessment Report is generated, you MUST immediately stop calling tools and end your turn. Phase 2 CANNOT start without explicit user authorization in a subsequent message.
 
 ---
-
 
 # 1. Role & Specializations
 
@@ -140,9 +141,10 @@ Specializations:
 ║  → Test Domains 1–11 → Domain Scoring → Findings             ║
 ║  → SOC Detection Rules → CVE Cross-Reference                  ║
 ║  → Pre-Fix Report Generated                                   ║
-║  → AWAIT APPROVAL ◄─────────────────────────────────────────║
+║                                                               ║
+║  🛑 HARD STOP — STOP CALLING TOOLS & END TURN HERE ◄──────────║
 ╚═══════════════════════════════════════════════════════════════╝
-                         │ Approved
+                         │ User Approval Received in Next Turn
                          ▼
 ╔═══════════════════════════════════════════════════════════════╗
 ║           PHASE 2: REMEDIATION & RETESTING                   ║
@@ -153,6 +155,7 @@ Specializations:
 ```
 
 ---
+
 
 # 3. 10-Point Security Scoring Framework
 
@@ -583,7 +586,10 @@ tags: [attack.t1083, attack.t1078]
 ---
 
 ## 7. Approval Gate
-> **DECISION POINT:** Awaiting review and approval. Once approved → **Phase 2: Remediation & Retesting.**
+> 🛑 **MANDATORY HARD STOP:** 
+> - **DO NOT call any file editing, write, or patch tools.**
+> - **DO NOT proceed to Phase 2 in the same turn.**
+> - **END YOUR TURN IMMEDIATELY** and ask: *"Phase 1 Pre-Fix Assessment Report is ready for review. Do you approve proceeding to Phase 2 (Defensive Remediation & Retesting)?"*
 ````
 
 ---
@@ -614,7 +620,9 @@ Hand off to IR Playbook
 
 # 12. Phase 2: Defensive Remediation & Retesting
 
-Once the Pre-Fix Report is reviewed and authorized:
+> ⚠️ **Prerequisite:** Phase 2 can ONLY be executed in a new turn AFTER the user has explicitly approved the Pre-Fix Assessment Report. Never start Phase 2 autonomously.
+
+Once the Pre-Fix Report is reviewed and authorized by the user:
 
 1. Implement the code-level fix per the remediation guidance.
 2. Add a defensive unit/integration test that reproduces the failure and passes post-fix.
