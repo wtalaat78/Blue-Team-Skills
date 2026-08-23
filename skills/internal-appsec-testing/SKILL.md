@@ -10,75 +10,99 @@ description: "Comprehensive guide for Senior Application Security Engineers and 
 
 # 0. Pre-Flight Self-Update
 
-**This step runs FIRST — before anything else — every time the skill is invoked.**
+## STEP 0-A — PRINT ACTIVATION BANNER (do this FIRST, before any tool call)
 
-The skill must update itself from GitHub to ensure the latest version, test cases,
-scoring rubrics, and CVE library are loaded before any assessment begins.
+**Before running any tool or command, output this exact markdown block in your chat response so the user can see the skill has loaded:**
 
-## 0.1 Locate the Repository Root
+```markdown
+---
+### 🔐 AppSec Skill — Pre-Flight
+| | |
+|:--|:--|
+| **Skill** | internal-appsec-testing v3.0 |
+| **Status** | 🔄 Checking for updates... |
+| **CVE Library** | 🔄 Refreshing... |
+---
+```
 
-Find the Blue-Team-Skills repository on this machine by running:
+Do NOT skip this. The user must always see the skill is active before any background work begins.
+
+---
+
+## STEP 0-B — LOCATE THE REPOSITORY ROOT (run silently)
+
+Find the Blue-Team-Skills repository on this machine:
 
 ```powershell
-# Try common locations in order
 $candidates = @(
-    "$env:USERPROFILE\Blue-Team-Skills",
     "D:\Techwaves-egy\Blue-Team-Skills",
+    "$env:USERPROFILE\Blue-Team-Skills",
     "C:\Blue-Team-Skills",
     "$env:USERPROFILE\Documents\Blue-Team-Skills"
 )
 foreach ($p in $candidates) {
-    if (Test-Path "$p\scripts\update.ps1") { Write-Host "REPO_FOUND: $p"; break }
+    if (Test-Path "$p\scripts\update.ps1") { Write-Host "REPO_FOUND:$p"; break }
 }
 ```
 
-If not found, tell the user:
-> "I need to locate the Blue-Team-Skills repository to self-update. Please tell me
-> where it is installed on this machine (e.g. `D:\Techwaves-egy\Blue-Team-Skills`)."
+Store the result as `<REPO_ROOT>`. If no path is found, skip Steps 0-C and 0-D, set update status to `⚠️ Repo not found — run install.ps1`.
 
-## 0.2 Run the Update Script
+---
 
-Once the repository is located, run the update script:
+## STEP 0-C — RUN THE UPDATE SCRIPT (run silently)
 
 ```powershell
-# Full update: git pull from GitHub + sync skill files to global install
 powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "<REPO_ROOT>\scripts\update.ps1"
 ```
 
-Parse the output:
-- If `"Skills updated : 1"` or higher → announce: **"Skill updated to latest version."**
-- If `"Already current"` → announce: **"Skill is up to date."**
-- If git pull fails (no network) → run in SkipPull mode and continue:
+Capture the output and determine the update status:
+- Output contains `"Skills updated"` → status = `✅ Skill updated to latest version`
+- Output contains `"already up to date"` or `"Already current"` → status = `✅ Already up to date`
+- Command fails or times out → retry with `-SkipPull` flag:
   ```powershell
   powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "<REPO_ROOT>\scripts\update.ps1" -SkipPull
   ```
-- If update script itself is missing → warn the user once, then continue:
-  > "Could not run self-update (scripts/update.ps1 not found). Run
-  > `.\scripts\install.ps1` once to enable auto-updates."
+  Then set status = `⚠️ Offline mode — local files synced (no GitHub pull)`
+- Script missing → status = `⚠️ update.ps1 not found — run .\scripts\install.ps1 once`
 
-## 0.3 Refresh CVE Library
+Get the current git commit:
+```powershell
+git -C "<REPO_ROOT>" rev-parse --short HEAD
+```
 
-After the skill update, refresh the CVE library for the latest vulnerability data:
+---
+
+## STEP 0-D — REFRESH CVE LIBRARY (run silently, non-blocking)
 
 ```powershell
 python -X utf8 "<REPO_ROOT>\scripts\update_cve_library.py"
 ```
 
-- If Python is not available or the script fails → skip silently and continue.
-- Do NOT block the assessment waiting for the CVE update.
+Determine CVE status from output:
+- Contains `"CVE Library update complete"` → CVE status = `✅ Updated (X Critical, Y High)`
+- Any error or Python not found → CVE status = `⚠️ Skipped (offline or Python not available)`
 
-## 0.4 Announce and Proceed
+---
 
-Show the user a brief pre-flight summary before starting the assessment:
+## STEP 0-E — PRINT FINAL PRE-FLIGHT RESULT (replace the banner above with this)
 
+**Now output the completed status block in your chat response:**
+
+```markdown
+---
+### 🔐 AppSec Skill — Pre-Flight Complete
+| | |
+|:--|:--|
+| **Skill** | internal-appsec-testing v3.0 |
+| **Version** | `<git-commit-hash>` |
+| **Skill Update** | ✅ Already up to date  *(or the actual status from Step 0-C)* |
+| **CVE Library** | ✅ Updated — 3 Critical, 25 High  *(or the actual status from Step 0-D)* |
+| **Mode** | 🔓 Ready for assessment |
+---
+> ℹ️ All pre-flight checks complete. Proceeding with your request...
 ```
-[Pre-Flight Complete]
-  Skill version : <git commit short hash>
-  CVE library   : Updated / Already current / Skipped (offline)
-  Ready         : Proceeding with assessment...
-```
 
-Then immediately proceed to the Agent Decision Framework below.
+**Then and only then proceed to Section 1.**
 
 ---
 
