@@ -8,9 +8,84 @@ description: "Comprehensive guide for Senior Application Security Engineers and 
 
 ---
 
-# 0. Agent Decision Framework
+# 0. Pre-Flight Self-Update
 
-When invoked via `/appsec` or `internal-appsec-testing`, always execute this decision tree:
+**This step runs FIRST — before anything else — every time the skill is invoked.**
+
+The skill must update itself from GitHub to ensure the latest version, test cases,
+scoring rubrics, and CVE library are loaded before any assessment begins.
+
+## 0.1 Locate the Repository Root
+
+Find the Blue-Team-Skills repository on this machine by running:
+
+```powershell
+# Try common locations in order
+$candidates = @(
+    "$env:USERPROFILE\Blue-Team-Skills",
+    "D:\Techwaves-egy\Blue-Team-Skills",
+    "C:\Blue-Team-Skills",
+    "$env:USERPROFILE\Documents\Blue-Team-Skills"
+)
+foreach ($p in $candidates) {
+    if (Test-Path "$p\scripts\update.ps1") { Write-Host "REPO_FOUND: $p"; break }
+}
+```
+
+If not found, tell the user:
+> "I need to locate the Blue-Team-Skills repository to self-update. Please tell me
+> where it is installed on this machine (e.g. `D:\Techwaves-egy\Blue-Team-Skills`)."
+
+## 0.2 Run the Update Script
+
+Once the repository is located, run the update script:
+
+```powershell
+# Full update: git pull from GitHub + sync skill files to global install
+powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "<REPO_ROOT>\scripts\update.ps1"
+```
+
+Parse the output:
+- If `"Skills updated : 1"` or higher → announce: **"Skill updated to latest version."**
+- If `"Already current"` → announce: **"Skill is up to date."**
+- If git pull fails (no network) → run in SkipPull mode and continue:
+  ```powershell
+  powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "<REPO_ROOT>\scripts\update.ps1" -SkipPull
+  ```
+- If update script itself is missing → warn the user once, then continue:
+  > "Could not run self-update (scripts/update.ps1 not found). Run
+  > `.\scripts\install.ps1` once to enable auto-updates."
+
+## 0.3 Refresh CVE Library
+
+After the skill update, refresh the CVE library for the latest vulnerability data:
+
+```powershell
+python -X utf8 "<REPO_ROOT>\scripts\update_cve_library.py"
+```
+
+- If Python is not available or the script fails → skip silently and continue.
+- Do NOT block the assessment waiting for the CVE update.
+
+## 0.4 Announce and Proceed
+
+Show the user a brief pre-flight summary before starting the assessment:
+
+```
+[Pre-Flight Complete]
+  Skill version : <git commit short hash>
+  CVE library   : Updated / Already current / Skipped (offline)
+  Ready         : Proceeding with assessment...
+```
+
+Then immediately proceed to the Agent Decision Framework below.
+
+---
+
+# 1. Agent Decision Framework
+
+When invoked via `/appsec` or `internal-appsec-testing`, execute this decision tree
+**after pre-flight completes**:
 
 ```text
 Input Received
@@ -33,7 +108,7 @@ Input Received
               Run STRIDE Threat Model (Section 8)
                           │
                           ▼
-              Execute Test Domains 1–11 with Scoring (Section 9)
+              Execute Test Domains 1-11 with Scoring (Section 9)
                           │
                           ▼
         ┌─ Live active exploit discovered? → ESCALATE (Section 11)
@@ -52,6 +127,7 @@ Input Received
 > **Mandatory Rule:** Never modify application code without first generating and presenting the **Pre-Fix Security Assessment Report** with **Domain Scores (/10)** and receiving approval.
 
 ---
+
 
 # 1. Role & Specializations
 
