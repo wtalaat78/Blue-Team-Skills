@@ -1,5 +1,5 @@
 # =============================================================================
-# Blue-Team-Skills — Update Script
+# Blue-Team-Skills - Update Script
 # =============================================================================
 # Run this anytime to pull the latest skill version from GitHub and sync it
 # to all local install locations.
@@ -21,7 +21,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# -- Helpers ------------------------------------------------------------------
 
 function Write-OK($text)   { Write-Host "  [OK]  $text" -ForegroundColor Green }
 function Write-WARN($text) { Write-Host "  [!!]  $text" -ForegroundColor Yellow }
@@ -35,7 +35,7 @@ function Get-FileHash256($path) {
     return $null
 }
 
-# ── Locate repository root ───────────────────────────────────────────────────
+# -- Locate repository root ---------------------------------------------------
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $LogFile  = "$RepoRoot\.update-log.txt"
@@ -48,10 +48,10 @@ function Write-Log($msg) {
 }
 
 Write-Host ""
-Write-Host "  Blue-Team-Skills Update — $Timestamp" -ForegroundColor Cyan
+Write-Host "  Blue-Team-Skills Update - $Timestamp" -ForegroundColor Cyan
 Write-Host "  Repository: $RepoRoot" -ForegroundColor Gray
 
-# ── Step 1: Git pull ─────────────────────────────────────────────────────────
+# -- Step 1: Git pull ---------------------------------------------------------
 
 if ($SkipPull) {
     Write-WARN "Skipping git pull (-SkipPull flag set). Syncing local files only."
@@ -61,32 +61,31 @@ if ($SkipPull) {
     Write-Host "  Pulling latest from GitHub..." -ForegroundColor Cyan
 
     try {
-        $pullOutput = git -C $RepoRoot pull origin main 2>&1
+        $prevEAP = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        $pullOutput = & git -C $RepoRoot pull origin main 2>&1
         $exitCode   = $LASTEXITCODE
+        $ErrorActionPreference = $prevEAP
 
         if ($exitCode -ne 0) {
             Write-ERR "git pull failed (exit code $exitCode):"
-            Write-ERR $pullOutput
-            Write-Log "ERROR: git pull failed — $pullOutput"
-            exit 1
-        }
-
-        if ($pullOutput -match "Already up to date") {
-            Write-OK "Repository is already up to date — no changes from GitHub."
+            Write-ERR ($pullOutput -join "`n")
+            Write-Log "ERROR: git pull failed - ($pullOutput -join ' ')"
+        } elseif (($pullOutput -join "`n") -match "Already up to date") {
+            Write-OK "Repository is already up to date - no changes from GitHub."
             Write-Log "git pull: already up to date"
         } else {
             Write-OK "Pulled latest changes from GitHub."
-            Write-Log "git pull: $pullOutput"
+            Write-Log "git pull: ($pullOutput -join ' ')"
         }
 
     } catch {
-        Write-ERR "Git pull error: $_"
-        Write-Log "ERROR: git exception — $_"
-        exit 1
+        Write-WARN "Git pull skipped or offline: $_"
+        Write-Log "WARN: git pull exception - $_"
     }
 }
 
-# ── Step 2: Sync skill files to global AGY config ────────────────────────────
+# -- Step 2: Sync skill files to global AGY config ----------------------------
 
 Write-Host ""
 Write-Host "  Syncing skill files to global install..." -ForegroundColor Cyan
@@ -108,7 +107,7 @@ $skippedCount = 0
 foreach ($pair in $SkillPairs) {
     if (-not (Test-Path $pair.Src)) {
         Write-WARN "Source not found, skipping: $($pair.Src)"
-        Write-Log "SKIP: source missing — $($pair.Src)"
+        Write-Log "SKIP: source missing - $($pair.Src)"
         continue
     }
 
@@ -118,7 +117,7 @@ foreach ($pair in $SkillPairs) {
 
     if ($srcHash -eq $dstHash) {
         Write-OK "$($pair.Name): already up to date (no changes)"
-        Write-Log "SKIP: $($pair.Name) — hash unchanged"
+        Write-Log "SKIP: $($pair.Name) - hash unchanged"
         $skippedCount++
     } else {
         $dstDir = Split-Path -Parent $pair.Dst
@@ -132,7 +131,7 @@ foreach ($pair in $SkillPairs) {
     }
 }
 
-# ── Step 3: Record current version ───────────────────────────────────────────
+# -- Step 3: Record current version -------------------------------------------
 
 $CurrentCommit  = git -C $RepoRoot rev-parse --short HEAD 2>$null
 $CurrentVersion = git -C $RepoRoot log -1 --format="%s" 2>$null
@@ -149,12 +148,12 @@ $VersionFile = "$RepoRoot\.skill-version.json"
 
 Write-Log "Version stamp written: commit=$CurrentCommit"
 
-# ── Step 4: Summary ──────────────────────────────────────────────────────────
+# -- Step 4: Summary ----------------------------------------------------------
 
 Write-Host ""
-Write-Host "  ──────────────────────────────────────" -ForegroundColor Gray
+Write-Host "  --------------------------------------" -ForegroundColor Gray
 Write-Host "  Update Summary" -ForegroundColor Cyan
-Write-Host "  ──────────────────────────────────────" -ForegroundColor Gray
+Write-Host "  --------------------------------------" -ForegroundColor Gray
 Write-OK   "  Skills updated : $updatedCount"
 Write-INFO "  Already current: $skippedCount"
 Write-INFO "  Git commit     : $CurrentCommit"

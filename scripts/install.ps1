@@ -1,5 +1,5 @@
 # =============================================================================
-# Blue-Team-Skills — Install Script
+# Blue-Team-Skills - Install Script
 # =============================================================================
 # Run this ONCE to install the AppSec skill globally on your machine.
 # After this, run update.ps1 (or let the scheduled task handle it) to get
@@ -24,13 +24,13 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# -- Helpers ------------------------------------------------------------------
 
 function Write-Header($text) {
     Write-Host ""
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host "==================================================" -ForegroundColor Cyan
     Write-Host "  $text" -ForegroundColor Cyan
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+    Write-Host "==================================================" -ForegroundColor Cyan
 }
 
 function Write-OK($text)   { Write-Host "  [OK]  $text" -ForegroundColor Green }
@@ -38,19 +38,19 @@ function Write-WARN($text) { Write-Host "  [!!]  $text" -ForegroundColor Yellow 
 function Write-ERR($text)  { Write-Host "  [XX]  $text" -ForegroundColor Red }
 function Write-INFO($text) { Write-Host "  [**]  $text" -ForegroundColor White }
 
-# ── Locate repository root ───────────────────────────────────────────────────
+# -- Locate repository root ---------------------------------------------------
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 
 if (-not (Test-Path "$RepoRoot\skills\internal-appsec-testing\SKILL.md")) {
-    Write-ERR "Cannot find SKILL.md — are you running this from the Blue-Team-Skills repo?"
+    Write-ERR "Cannot find SKILL.md - are you running this from the Blue-Team-Skills repo?"
     exit 1
 }
 
 Write-Header "Blue-Team-Skills Installer"
 Write-INFO "Repository root: $RepoRoot"
 
-# ── Define paths ─────────────────────────────────────────────────────────────
+# -- Define paths -------------------------------------------------------------
 
 $GlobalSkillsDir = "$env:USERPROFILE\.gemini\config\skills"
 $SkillDest       = "$GlobalSkillsDir\internal-appsec-testing"
@@ -60,9 +60,9 @@ $AppsecSrc       = "$RepoRoot\skills\appsec"
 $HookDir         = "$RepoRoot\.git\hooks"
 $HookFile        = "$HookDir\post-merge"
 
-# ── Step 1: Create global skill directories ───────────────────────────────────
+# -- Step 1: Create global skill directories -----------------------------------
 
-Write-Header "Step 1 of 4 — Installing skill to global AGY config"
+Write-Header "Step 1 of 4 - Installing skill to global AGY config"
 
 @($SkillDest, $AppsecDest) | ForEach-Object {
     if (-not (Test-Path $_)) {
@@ -78,12 +78,12 @@ Write-OK "Installed: $SkillDest\SKILL.md"
 Copy-Item "$AppsecSrc\SKILL.md" "$AppsecDest\SKILL.md" -Force
 Write-OK "Installed: $AppsecDest\SKILL.md"
 
-# ── Step 2: Install Git post-merge hook ───────────────────────────────────────
+# -- Step 2: Install Git post-merge hook ---------------------------------------
 
-Write-Header "Step 2 of 4 — Installing Git post-merge hook"
+Write-Header "Step 2 of 4 - Installing Git post-merge hook"
 
 if (-not (Test-Path $HookDir)) {
-    Write-WARN "No .git/hooks directory found — skipping hook (not a git repo?)"
+    Write-WARN "No .git/hooks directory found - skipping hook (not a git repo?)"
 } else {
     $HookContent = @"
 #!/bin/sh
@@ -113,9 +113,9 @@ fi
     Write-INFO "The skill will now auto-sync every time you run 'git pull'."
 }
 
-# ── Step 3: Write version stamp ───────────────────────────────────────────────
+# -- Step 3: Write version stamp -----------------------------------------------
 
-Write-Header "Step 3 of 4 — Recording install metadata"
+Write-Header "Step 3 of 4 - Recording install metadata"
 
 $InstallMeta = @{
     installed_by     = $env:USERNAME
@@ -129,9 +129,9 @@ $MetaFile = "$RepoRoot\.skill-install.json"
 Set-Content -Path $MetaFile -Value $InstallMeta -Encoding UTF8
 Write-OK "Install metadata saved: $MetaFile"
 
-# ── Step 4: Optional Scheduled Task ───────────────────────────────────────────
+# -- Step 4: Optional Scheduled Task -------------------------------------------
 
-Write-Header "Step 4 of 4 — Windows Scheduled Task (daily auto-update)"
+Write-Header "Step 4 of 4 - Windows Scheduled Task (daily auto-update)"
 
 if ($SkipScheduledTask) {
     Write-WARN "Skipping scheduled task setup (-SkipScheduledTask flag set)."
@@ -143,7 +143,7 @@ if ($SkipScheduledTask) {
     $TaskExists  = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 
     if ($TaskExists) {
-        Write-WARN "Scheduled task '$TaskName' already exists — skipping creation."
+        Write-WARN "Scheduled task '$TaskName' already exists - skipping creation."
     } else {
         try {
             $Action  = New-ScheduledTaskAction `
@@ -166,7 +166,7 @@ if ($SkipScheduledTask) {
                 -RunLevel Limited `
                 -Force | Out-Null
 
-            Write-OK "Scheduled task '$TaskName' created — runs daily at 07:00 AM."
+            Write-OK "Scheduled task '$TaskName' created - runs daily at 07:00 AM."
             Write-INFO "To run immediately: Start-ScheduledTask -TaskName '$TaskName'"
             Write-INFO "To remove:         Unregister-ScheduledTask -TaskName '$TaskName' -Confirm:`$false"
 
@@ -177,7 +177,7 @@ if ($SkipScheduledTask) {
     }
 }
 
-# ── Done ──────────────────────────────────────────────────────────────────────
+# -- Done ----------------------------------------------------------------------
 
 Write-Header "Installation Complete"
 Write-OK "Skill installed globally at:  $SkillDest"
