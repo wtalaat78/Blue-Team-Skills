@@ -8,101 +8,52 @@ description: "Comprehensive guide for Senior Application Security Engineers and 
 
 ---
 
-# 0. Pre-Flight Self-Update
+# 0. Pre-Flight Self-Update (MANDATORY & FULLY VISIBLE)
 
-## STEP 0-A — PRINT ACTIVATION BANNER (do this FIRST, before any tool call)
+**Every time this skill is invoked, you MUST execute the update process and display the full live update details visibly in your response.**
 
-**Before running any tool or command, output this exact markdown block in your chat response so the user can see the skill has loaded:**
+The user must always see the complete update verification box before any testing or dialogue continues.
+
+---
+
+## 0.1 Update Execution Procedure
+
+1. **Locate the Repository Root**:
+   Check `D:\Techwaves-egy\Blue-Team-Skills`, `$env:USERPROFILE\Blue-Team-Skills`, `C:\Blue-Team-Skills`.
+
+2. **Execute Update Script**:
+   Run `powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "<REPO_ROOT>\scripts\update.ps1"`
+   Capture the exact console output, git pull status, and commit hash.
+
+3. **Check/Refresh CVE Library**:
+   Run `python -X utf8 "<REPO_ROOT>\scripts\update_cve_library.py"` (or read `references/cve-library/README.md`).
+
+---
+
+## 0.2 Mandatory Visible Output Format
+
+**You MUST output the following block at the very top of your response:**
 
 ```markdown
 ---
-### 🔐 AppSec Skill — Pre-Flight
-| | |
-|:--|:--|
-| **Skill** | internal-appsec-testing v3.0 |
-| **Status** | 🔄 Checking for updates... |
-| **CVE Library** | 🔄 Refreshing... |
+### 🔄 AppSec Skill — Live Self-Update & Verification
+```text
+[1/3] Git Remote Sync    : Pulling origin/main... (Already up to date / Pulled latest)
+[2/3] Local Distribution : Synced -> ~/.gemini/config/skills/ & .agents/skills/
+[3/3] CVE Library Feed   : 28 Critical/High CVEs active (references/cve-library/)
+[Commit Version]         : <git-commit-hash> | <commit-timestamp>
+```
+
+| Component | Status | Details |
+|:---|:---:|:---|
+| **Skill Definition** | ✅ Up to Date | `internal-appsec-testing` v3.0 |
+| **Shortcuts** | ✅ Active | `/appsec`, `/internal-appsec-testing` |
+| **CVE Intelligence** | ✅ Active | Synced with NVD/NIST API & cve.org |
+| **Audit Posture** | 🛡️ Ready | Phase 1: Pre-Fix Report required before remediation |
 ---
 ```
 
-Do NOT skip this. The user must always see the skill is active before any background work begins.
-
----
-
-## STEP 0-B — LOCATE THE REPOSITORY ROOT (run silently)
-
-Find the Blue-Team-Skills repository on this machine:
-
-```powershell
-$candidates = @(
-    "D:\Techwaves-egy\Blue-Team-Skills",
-    "$env:USERPROFILE\Blue-Team-Skills",
-    "C:\Blue-Team-Skills",
-    "$env:USERPROFILE\Documents\Blue-Team-Skills"
-)
-foreach ($p in $candidates) {
-    if (Test-Path "$p\scripts\update.ps1") { Write-Host "REPO_FOUND:$p"; break }
-}
-```
-
-Store the result as `<REPO_ROOT>`. If no path is found, skip Steps 0-C and 0-D, set update status to `⚠️ Repo not found — run install.ps1`.
-
----
-
-## STEP 0-C — RUN THE UPDATE SCRIPT (run silently)
-
-```powershell
-powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "<REPO_ROOT>\scripts\update.ps1"
-```
-
-Capture the output and determine the update status:
-- Output contains `"Skills updated"` → status = `✅ Skill updated to latest version`
-- Output contains `"already up to date"` or `"Already current"` → status = `✅ Already up to date`
-- Command fails or times out → retry with `-SkipPull` flag:
-  ```powershell
-  powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "<REPO_ROOT>\scripts\update.ps1" -SkipPull
-  ```
-  Then set status = `⚠️ Offline mode — local files synced (no GitHub pull)`
-- Script missing → status = `⚠️ update.ps1 not found — run .\scripts\install.ps1 once`
-
-Get the current git commit:
-```powershell
-git -C "<REPO_ROOT>" rev-parse --short HEAD
-```
-
----
-
-## STEP 0-D — REFRESH CVE LIBRARY (run silently, non-blocking)
-
-```powershell
-python -X utf8 "<REPO_ROOT>\scripts\update_cve_library.py"
-```
-
-Determine CVE status from output:
-- Contains `"CVE Library update complete"` → CVE status = `✅ Updated (X Critical, Y High)`
-- Any error or Python not found → CVE status = `⚠️ Skipped (offline or Python not available)`
-
----
-
-## STEP 0-E — PRINT FINAL PRE-FLIGHT RESULT (replace the banner above with this)
-
-**Now output the completed status block in your chat response:**
-
-```markdown
----
-### 🔐 AppSec Skill — Pre-Flight Complete
-| | |
-|:--|:--|
-| **Skill** | internal-appsec-testing v3.0 |
-| **Version** | `<git-commit-hash>` |
-| **Skill Update** | ✅ Already up to date  *(or the actual status from Step 0-C)* |
-| **CVE Library** | ✅ Updated — 3 Critical, 25 High  *(or the actual status from Step 0-D)* |
-| **Mode** | 🔓 Ready for assessment |
----
-> ℹ️ All pre-flight checks complete. Proceeding with your request...
-```
-
-**Then and only then proceed to Section 1.**
+**After printing this visible block, proceed directly with addressing the user's request.**
 
 ---
 
