@@ -227,7 +227,7 @@ def generate_pdf_report(
     summary_text = executive_summary or (
         "Techwaves EGY conducted an internal Application Security Assessment evaluating authentication, "
         "authorization boundaries (IDOR/BOLA), input validation, injection defenses, cryptography, API workflow integrity, "
-        "and SOC detection readiness across 11 security domains. The assessment identified key vulnerabilities requiring "
+        "host runtime execution engines (PHP/Node.js/Python), and SOC detection readiness across 11 security domains. The assessment identified key vulnerabilities requiring "
         "immediate remediation prior to production deployment."
     )
     elements.append(Paragraph(summary_text, styles['Body']))
@@ -255,9 +255,9 @@ def generate_pdf_report(
         (6, "State-Changing Security & CSRF", 8.0, "Compliant", "SameSite=Strict cookies active."),
         (7, "SSRF & Perimeter Defenses", 5.0, "Moderate", "Webhook endpoint lacks RFC 1918 block."),
         (8, "File Upload, Path Traversal & Storage", 7.5, "Compliant", "S3 isolated storage; needs magic-byte check."),
-        (9, "Cryptography, Secrets & Config Hygiene", 6.5, "Moderate", "TLS 1.3 active; API key template committed."),
+        (9, "Cryptography, Secrets & Engine Config", 6.5, "Moderate", "TLS 1.3 active; runtime directives audited; upload progress secured."),
         (10, "Logging, Auditing & SOC Telemetry", 4.0, "High Risk", "Missing failed auth logging & correlation ID."),
-        (11, "Software Supply Chain & SCA (CVEs)", 7.0, "Compliant", "Dependencies reviewed against live CVE library.")
+        (11, "Software Supply Chain, SCA & Host Runtime", 7.0, "Compliant", "Application manifests & host runtime versions reviewed against CVE library.")
     ]
 
     for idx, name, score, rating, obs in default_domains:
@@ -332,11 +332,15 @@ def generate_pdf_report(
         f_elements.append(f_meta_tbl)
         f_elements.append(Spacer(1, 4))
 
-        f_elements.append(Paragraph(f"<b>Description:</b> {f['desc']}", styles['Body']))
+        import html
+        def _esc_code(text):
+            return html.escape(str(text), quote=False).replace('\n', '<br/>')
+
+        f_elements.append(Paragraph(f"<b>Description:</b> {html.escape(f['desc'], quote=False)}", styles['Body']))
         f_elements.append(Spacer(1, 3))
 
         # Proof of Concept box
-        poc_tbl = Table([[Paragraph(f"<b>Proof of Concept Trace:</b><br/><font name='Courier' size='7'>{f['poc'].replace(chr(10), '<br/>')}</font>", styles['TableCell'])]], colWidths=[6.8*inch])
+        poc_tbl = Table([[Paragraph(f"<b>Proof of Concept Trace:</b><br/><font name='Courier' size='7'>{_esc_code(f['poc'])}</font>", styles['TableCell'])]], colWidths=[6.8*inch])
         poc_tbl.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#EDF2F7")),
             ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E0")),
@@ -347,7 +351,7 @@ def generate_pdf_report(
         f_elements.append(Spacer(1, 4))
 
         # Defensive Remediation box
-        rem_tbl = Table([[Paragraph(f"<b>Defensive Remediation Code:</b><br/><font name='Courier' size='7'>{f['remediation'].replace(chr(10), '<br/>')}</font>", styles['TableCell'])]], colWidths=[6.8*inch])
+        rem_tbl = Table([[Paragraph(f"<b>Defensive Remediation Code:</b><br/><font name='Courier' size='7'>{_esc_code(f['remediation'])}</font>", styles['TableCell'])]], colWidths=[6.8*inch])
         rem_tbl.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#F0FFF4")),
             ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#9AE6B4")),
@@ -358,7 +362,7 @@ def generate_pdf_report(
         f_elements.append(Spacer(1, 4))
 
         # SOC Rule box
-        soc_tbl = Table([[Paragraph(f"<b>SOC Detection Rule (Sigma):</b><br/><font name='Courier' size='7'>{f['sigma'].replace(chr(10), '<br/>')}</font>", styles['TableCell'])]], colWidths=[6.8*inch])
+        soc_tbl = Table([[Paragraph(f"<b>SOC Detection Rule (Sigma):</b><br/><font name='Courier' size='7'>{_esc_code(f['sigma'])}</font>", styles['TableCell'])]], colWidths=[6.8*inch])
         soc_tbl.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#EBF8FF")),
             ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#BEE3F8")),

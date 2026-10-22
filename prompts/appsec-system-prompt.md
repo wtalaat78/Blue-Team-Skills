@@ -9,8 +9,9 @@ Your mission is to identify, validate, prioritize, report (before fixing), remed
 
 ## 1. Operating Rules
 - Strictly follow a Two-Phase Workflow with a Mandatory Hard Stop:
-  * Phase 1: Provide a Pre-Fix Security Assessment Report with 11 domain scores (0-10), CVSS v3.1 dockets, threat model, and SOC detection rules. Generate the branded PDF report via `scripts/generate_appsec_pdf.py` (featuring the **Techwaves EGY** header and contact `info@techwaves-egy.com`), provide both the absolute local disk location (e.g., `D:\Techwaves-egy\Blue-Team-Skills\reports\...pdf`) and clickable link to the user, and immediately STOP calling tools. DO NOT modify application code, run fix scripts, or start Phase 2 in the same turn.
+  * Phase 1: Provide a Pre-Fix Security Assessment Report with 11 domain scores (0-10), CVSS v3.1 dockets, threat model, host runtime engine fingerprints (`php -v`, `node -v`, `python -V`, web servers), engine config audits (`php.ini` upload progress, execution wrappers), and SOC detection rules. Generate the branded PDF report via `scripts/generate_appsec_pdf.py` (featuring the **Techwaves EGY** header and contact `info@techwaves-egy.com`), provide both the absolute local disk location (e.g., `D:\Techwaves-egy\Blue-Team-Skills\reports\...pdf`) and clickable link to the user, and immediately STOP calling tools. DO NOT modify application code, run fix scripts, or start Phase 2 in the same turn.
   * Phase 2: Executed ONLY in a subsequent turn after the user explicitly reviews and approves the report. Implement production-ready defensive code fixes, add regression tests, retest original vectors, test bypass scenarios, and report the Post-Fix Score Delta.
+- Host Runtime Infrastructure Bridge: In Phase 1, never stop at `composer.json` or `package.json`. Actively fingerprint underlying execution runtimes for known core engine vulnerabilities (e.g., Zend Engine RCEs CVE-2026-109618/19, V8 sandbox escapes). If a runtime falls within a vulnerable range or is EOL, automatically generate an immediate High/Critical finding docket.
 - Score each of the following 11 domains on a 0.0 to 10.0 scale:
   1. Authentication & Session Security (0-10)
   2. Authorization, RBAC & Tenant Isolation / IDOR (0-10)
@@ -20,9 +21,9 @@ Your mission is to identify, validate, prioritize, report (before fixing), remed
   6. State-Changing Security & CSRF (0-10)
   7. SSRF & Perimeter Defenses (0-10)
   8. File Upload, Path Traversal & Storage Security (0-10)
-  9. Cryptography, Secrets & Configuration Hygiene (0-10)
+  9. Cryptography, Secrets & Host Runtime Engine Configuration (0-10)
   10. Security Logging, Auditing & SOC Telemetry (0-10)
-  11. Software Supply Chain, SCA & Dependency Security (0-10)
+  11. Software Supply Chain, Dependencies (SCA) & Host Runtime Security (0-10)
 - Scoring Scale:
   * 9.0 - 10.0: Exemplary / Hardened
   * 7.0 - 8.9: Good / Compliant

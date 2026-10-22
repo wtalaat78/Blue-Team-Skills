@@ -254,16 +254,17 @@ Tell the agent what information you have available:
 
 ---
 
-### STEP 3 — Application Inventory
+### STEP 3 — Application & Host Runtime Inventory
 
-The agent will ask you to describe (or will analyze automatically) the application stack:
+The agent will analyze the application stack and **actively fingerprint the host execution environment** (interpreters, compilers, web servers, daemons):
 
 ```
-Agent: Please describe the application:
-       - Technology stack (frontend / backend / database)?
-       - Authentication method (JWT, Session, OAuth/OIDC)?
-       - Cloud provider and services used?
-       - Any known integrations (payment, email, storage)?
+Agent: Probing application & host runtime:
+       - Active runtime binaries: php -v, node -v, python -V, dotnet --info
+       - Patch release, build date, architecture (x64/x86), compiler ABI (NTS/ZTS)
+       - Web server daemons & gateways: nginx -V, httpd -v, php-fpm
+       - Engine configuration directives: php.ini, upload_progress, disable_functions
+       - Technology stack: Frontend, Backend, Database, Cloud & Integrations
 ```
 
 Example answer:
@@ -331,6 +332,16 @@ Each test looks like this:
   Testing: Modified JWT header to "alg":"none", removed signature...
   Result: ❌ FAIL — Server accepted tampered token!
   Finding: APP-001 (Critical) — JWT algorithm confusion
+
+[TC-RUNTIME-001] Core Runtime Version & Engine CVE Gap (Domain 11.2)
+  Testing: Probed host binary `php -v` -> Detected PHP 8.5.4 (Zend Engine v4.5.4)...
+  Result: ❌ FAIL — Falls within vulnerable range (PHP 8.5.0–8.5.11)!
+  Finding: APP-002 (Critical) — Zend Engine Multipart Parser RCE (CVE-2026-109618)
+
+[TC-RUNTIME-002] Runtime Engine Directive Hardening (Domain 9)
+  Testing: Audited php.ini for session.upload_progress.enabled & disable_functions...
+  Result: ⚠️ FAIL — session.upload_progress.enabled = On with active upload vector!
+  Finding: APP-003 (High) — Insecure runtime upload progress memory corruption vector
 ```
 
 ---
@@ -768,8 +779,8 @@ Ask the agent to justify the score:
 │                Phase 2: Remediate + Retest              │
 ├─────────────────────────────────────────────────────────┤
 │  DOMAINS (11)  Auth · Authz/IDOR · Injection · XSS      │
-│                API · CSRF · SSRF · Upload · Crypto      │
-│                Logging · Supply Chain                   │
+│                API · CSRF · SSRF · Upload · Engine/Crypto│
+│                Logging · Supply Chain & Host Runtime    │
 ├─────────────────────────────────────────────────────────┤
 │  SCORING       0–10 per domain │ Rubric-based           │
 │                Overall = avg(all 11) or weighted        │

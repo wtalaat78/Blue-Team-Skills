@@ -251,15 +251,33 @@ Specializations:
 | **3–4** | Path traversal confirmed: `../../etc/passwd` accessible; executable upload in webroot. |
 | **0–2** | Web shell upload and execution confirmed; full filesystem access via path traversal. |
 
-#### Domain 9: Cryptography, Secrets & Configuration
+#### Domain 9: Cryptography, Secrets & Host Runtime Engine Configuration
+
+Audits cryptographic posture, secret governance, and host runtime engine hardening directives across `php.ini`, Node.js CLI flags, and Web Server / Gateway configurations.
+
+##### Runtime Engine Directives Audit:
+1. **PHP Engine Directives (`php.ini`):**
+   - `session.upload_progress.enabled`: Verify if enabled. If set to `1` without `session.upload_progress.cleanup = 1` or in the presence of LFI / multipart upload parser flaws, this is a primary vector for php2shell, session file poisoning, and Zend Engine memory corruption. Must be disabled (`session.upload_progress.enabled = Off`) unless strictly required and secured.
+   - `allow_url_fopen` & `allow_url_include`: Must verify `allow_url_include = Off` (blocks Remote File Inclusion / RFI). `allow_url_fopen` should be disabled unless strictly required for outbound API calls.
+   - `expose_php = Off`: Disables `X-Powered-By: PHP/x.x.x` HTTP banner leakage.
+   - `disable_functions`: Must verify dangerous execution wrappers and process functions are restricted in production:
+     `disable_functions = exec,shell_exec,system,passthru,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source,phpinfo`
+   - Production Error Bailouts: `display_errors = Off`, `display_startup_errors = Off`, `log_errors = On`, `error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT`.
+   - Resource Bailout Defenses: `memory_limit`, `max_execution_time`, `max_input_time`, `post_max_size`, `max_file_uploads` set to defensive thresholds to prevent memory exhaustion DoS.
+2. **Node.js Runtime Flags:**
+   - Prohibit dangerous production CLI flags: `--experimental-vm-modules`, `--insecure-http-parser`, `--no-warnings`.
+   - Enforce strict unhandled promise rejection policy: `unhandledRejections=strict`.
+3. **Web Server & Gateway Hardening:**
+   - Nginx: `server_tokens off;`, `client_max_body_size`, fastcgi socket permissions (`0660` owned by `www-data`), `proxy_cookie_path` / `proxy_cookie_flags`.
+   - Apache: `ServerTokens Prod`, `ServerSignature Off`, `TraceEnable Off`, `LimitRequestBody`.
 
 | Score | Criteria |
 | :---: | :--- |
-| **9–10** | TLS 1.3 only; zero hardcoded secrets (Gitleaks clean); secrets in vault (Azure KV / AWS SM); all security headers A+ (securityheaders.com); HSTS preloaded. |
-| **7–8** | TLS 1.2+ active; HSTS enabled; most headers present; no secrets in source (minor config template gap). |
-| **5–6** | TLS 1.2 with some weak ciphers; missing Permissions-Policy or Referrer-Policy; API key in non-production config committed. |
-| **3–4** | Hardcoded secret in source code; TLS 1.0/1.1 enabled; missing HSTS. |
-| **0–2** | Production credentials in Git history; self-signed cert; HTTP endpoints for sensitive operations. |
+| **9–10** | TLS 1.3 only; zero hardcoded secrets (Gitleaks clean); secrets in vault (Azure KV / AWS SM); all security headers A+; HSTS preloaded. Host runtime engine directives fully hardened: `session.upload_progress.enabled = Off`, dangerous execution functions (`disable_functions`) strictly restricted, `expose_php = Off`, `server_tokens off`, `allow_url_include = Off`, and production error bailouts (`display_errors = Off`, `log_errors = On`) enforced. |
+| **7–8** | TLS 1.2+ active; HSTS enabled; primary security headers present; no secrets in source. Runtime engine has baseline hardening: `display_errors = Off`, `allow_url_include = Off`, server version tokens masked, and execution wrappers audited. |
+| **5–6** | TLS 1.2 with weak ciphers; missing Permissions/Referrer policies; committed non-prod API keys. Runtime engine leaks version banners (`expose_php = On`, `ServerTokens OS`); default `session.upload_progress.enabled = On` without strict cleanup lock; non-critical execution functions enabled. |
+| **3–4** | Hardcoded secrets in code; TLS 1.0/1.1 enabled; missing HSTS. `display_errors = On` in production web responses; `disable_functions` completely unconfigured with arbitrary command execution risk; `allow_url_fopen` / `allow_url_include` permissive. |
+| **0–2** | Production credentials in Git history; plain HTTP in transit. `allow_url_include = On` permitting direct Remote File Inclusion (RFI); `session.upload_progress.enabled = On` exposed in presence of LFI or known multipart memory corruption vectors; full stack traces and environment variables dumped in client error pages. |
 
 #### Domain 10: Security Logging, Auditing & SOC Telemetry
 
@@ -271,15 +289,30 @@ Specializations:
 | **3–4** | Failed auth not logged; no correlation IDs; logs don't reach SIEM. |
 | **0–2** | No security logging; passwords visible in logs; logs writable by application user. |
 
-#### Domain 11: Software Supply Chain & Dependency Security
+#### Domain 11: Software Supply Chain, Dependencies (SCA) & Host Runtime Security
+
+Evaluates both application-level package manifests (Domain 11.1) and underlying host interpreter/compiler execution runtimes (Domain 11.2).
+
+##### Domain 11.1: Application Manifest & Library SCA
+- Audits application package manifests (`package.json`, `composer.json`, `requirements.txt`, `pom.xml`, `go.mod`, etc.).
+- Verifies pinned lockfiles (`package-lock.json`, `composer.lock`, `Pipfile.lock`), dependency hash verification, and transitive dependency trees.
+
+##### Domain 11.2: Host Runtime & Engine SCA (Mandatory Engine Vulnerability Auditing)
+- Mandates checking the fingerprinted host runtime version (PHP Zend Engine, Node.js V8, CPython, JVM, .NET CLR, Web Server daemons) against NVD, NIST, CVE.org, and CISA KEV for core engine vulnerabilities.
+- Actively checks for core engine-level vulnerabilities:
+  - Zend Engine Remote Code Execution (RCE) and memory corruption bugs (e.g. CVE-2026-109618, CVE-2026-109619, PHP multipart body parser buffer overflows, integer underflows in streams/filters).
+  - Node.js / V8 engine sandbox escapes, prototype pollution in internal modules, buffer overflows in HTTP parser.
+  - Python CPython memory corruption in `ctypes`, `pickle`, or `ssl` bindings.
+  - Web Server daemon request smuggling, HTTP/2 CONTINUATION flood (CVE-2024-27983), mod_proxy buffer overflows.
+- **MANDATORY CRITICAL RULE**: If a discovered host runtime falls within a known vulnerable range (e.g. PHP 8.5.0–8.5.11 unpatched for Zend Engine RCE, unpatched Node.js LTS, or End-of-Life / unsupported runtime release), the agent **MUST automatically docket an immediate High or Critical finding** with CVSS v3.1 calculation and block clean posture rating. EOL runtimes cap Domain 11 score at max 3.0/10.
 
 | Score | Criteria |
 | :---: | :--- |
-| **9–10** | SBOM generated; all deps pinned with integrity hashes; zero known CVEs (CVSS ≥ 7.0) in direct deps; SCA gate blocks High+; artifact signing (Sigstore/Cosign). |
-| **7–8** | SCA tool active in CI; no CVSS ≥ 9.0 CVEs; minor outdated transitive deps. |
-| **5–6** | Known Medium CVEs in direct deps; SCA running but not blocking builds. |
-| **3–4** | Known High CVEs (CVSS 7–8) in production dependencies; no SCA gate. |
-| **0–2** | Known Critical CVEs (CVSS ≥ 9.0) in production; no SCA; no lockfile; npm/pip floating versions. |
+| **9–10** | Comprehensive SBOM generated; all application dependencies pinned with integrity hashes; host runtime engine on the latest vendor security patch release; zero known engine CVEs; automated runtime and base-image patch pipeline; artifact signing (Sigstore/Cosign). |
+| **7–8** | SCA tool active in CI gating builds; no CVSS ≥ 9.0 CVEs in application libraries; host runtime is an actively supported LTS release within 1 patch of latest; zero known High/Critical engine CVEs. |
+| **5–6** | Known Medium CVEs in application libraries; SCA running in report-only mode; host runtime has low/medium unpatched CVEs or is nearing official vendor End-of-Life (< 3 months). |
+| **3–4** | Known High CVEs (CVSS 7.0–8.9) in production application dependencies OR host runtime has unpatched High engine CVE; runtime is officially End-of-Life (EOL) without extended security support; no SCA gates. |
+| **0–2** | Known Critical CVEs (CVSS ≥ 9.0) in application libraries OR **host runtime falls within a known vulnerable range** (e.g., PHP Zend Engine RCEs like CVE-2026-109618 / CVE-2026-109619, V8 sandbox escapes, Node.js HTTP parser RCE); unmaintained EOL runtime with known public exploits; no lockfile. |
 
 ### Overall Score Formula
 
@@ -334,15 +367,59 @@ Production testing: **least intrusive only**; non-destructive payloads; document
 
 ---
 
-# 6. Application Inventory
+# 6. Application & Host Runtime Inventory
 
 Document for every application assessed:
 
 ```text
 Application Name | Business Owner | Technical Owner | Environment
-URL / Hostname   | Frontend Stack | Backend Stack   | Language
+URL / Hostname   | Frontend Stack | Backend Stack   | Language & Runtime
 Framework        | Database       | Auth Provider   | Authorization Model
-External Integrations | Cloud Services | Deployment Platform | CI/CD System
+Web Server/Gateway| Host OS / Arch | Deployment Platform | CI/CD System
+```
+
+## 6.1 Host Runtime & Engine Fingerprinting (Mandatory SAST/Host Bridge)
+
+During Phase 1, the assessor **MUST NOT stop at application-level package manifests** (`composer.json`, `package.json`, `requirements.txt`, `pom.xml`, `Gemfile`). The agent must actively probe and fingerprint the underlying execution runtimes, interpreter engines, and web servers to identify host-level vulnerabilities, unpatched engine CVEs, and dangerous engine default directives:
+
+### Automated Runtime Execution Probes:
+1. **PHP Runtime & Zend Engine:**
+   - Execute: `php -v` and `php -i` (or `php --ini` / `php -r "phpinfo(INFO_GENERAL);"`).
+   - Capture:
+     - Exact patch release: (e.g., `PHP 8.5.4`, `PHP 8.2.19`, `PHP 8.1.28`).
+     - Zend Engine core version: (e.g., `Zend Engine v4.5.4`).
+     - Build timestamp and compiler: (e.g., `built: Feb 12 2026 14:22:10`, `MSVC17`, `gcc 13.2`).
+     - Architecture & ABI: `x64` vs `x86`, `NTS` (Non-Thread Safe) vs `ZTS` (Zend Thread Safe).
+     - OPcache & JIT compilation status: `Zend OPcache v...`, `opcache.jit`.
+2. **Node.js & V8 Runtime Engine:**
+   - Execute: `node -v` and `node -p "process.versions"`.
+   - Capture: Node.js version, V8 engine build, OpenSSL embedded version, architecture (`process.arch`), platform (`process.platform`).
+3. **Python CPython/PyPy Runtime:**
+   - Execute: `python --version` (or `python3 --version`) and `python -c "import sys, platform; print(platform.platform(), sys.version, sys.maxsize > 2**32 and 'x64' or 'x86')"`
+   - Capture: Interpreter version, patch level, build tag, architecture, linked OpenSSL version (`ssl.OPENSSL_VERSION`).
+4. **.NET / CLR Runtime:**
+   - Execute: `dotnet --info`
+   - Capture: .NET SDK versions, runtime environment, ASP.NET Core shared framework version, OS and architecture.
+5. **Java / JVM:**
+   - Execute: `java -version` and `javac -version`
+   - Capture: Java version, vendor (OpenJDK / Oracle / Temurin / Corretto), build date, 64-bit Server VM.
+6. **Web Server & FastCGI Gateways:**
+   - Nginx: `nginx -v` (version) and `nginx -V` (configured build arguments, OpenSSL library, PCRE version, HTTP/2/3 modules).
+   - Apache HTTP Server: `httpd -v` / `apache2 -v`, `apache2ctl -M` / `httpd -M` (loaded modules: `mpm_event`, `proxy_fcgi`, `mod_security`, `mod_ssl`).
+   - PHP-FPM / FastCGI: `php-fpm -v`, listen socket configuration (Unix socket vs TCP port `9000`), pool process model.
+   - Caddy / IIS / Lighttpd / Envoy versions.
+7. **Database Engine Daemons:**
+   - MySQL / MariaDB: `mysql -V` or query `SELECT VERSION();`
+   - PostgreSQL: `postgres -V` or query `SELECT version();`
+   - Redis: `redis-server -v` or query `INFO server`
+
+### Host Runtime Fingerprint Summary Table (Required in Pre-Fix Report Section 4):
+```markdown
+| Component | Detected Version | Build / Options | Arch | Known Vulnerable Range? | Status |
+| :--- | :--- | :--- | :--- | :---: | :--- |
+| **PHP Runtime** | PHP 8.5.4 | Zend Engine v4.5.4 (NTS) | x64 | ⚠️ 8.5.0–8.5.11 (CVE-2026-109618) | 🔴 CRITICAL EXPOSURE |
+| **Web Server** | Nginx 1.26.1 | OpenSSL 3.0.13, HTTP/2 | x64 | Clean | 🟢 Compliant |
+| **Database** | PostgreSQL 16.3 | Debian 16.3-1.pgdg120+1 | x64 | Clean | 🟢 Compliant |
 ```
 
 ---
@@ -447,6 +524,14 @@ For each domain, the agent executes structured test cases and records pass/fail/
 | TC-SSRF-004 | DNS Rebinding | Use Burp Collaborator / controlled DNS | No connection back | DNS rebinding exposure (High) |
 | TC-SSRF-005 | Schema Bypass | `file:///etc/passwd`, `gopher://`, `dict://` | All non-HTTP schemas blocked | Protocol bypass SSRF (Critical) |
 
+## TC-RUNTIME: Host Runtime & Engine Security (Domains 9 & 11)
+
+| TC-ID | Test Name | Action / Command | Expected (Pass) | Fail = Finding |
+| :--- | :--- | :--- | :--- | :--- |
+| **TC-RUNTIME-001** | Core Runtime Version & EOL / Patch Gap | Execute `php -v`, `node -v`, `python -V`, `dotnet --info`. Compare version against latest upstream security release & EOL calendar. Cross-reference NVD/CISA KEV for Zend Engine / V8 / CPython CVEs. | Active LTS/supported release; current patch release; 0 known unpatched engine CVEs. | Unpatched runtime in known vulnerable range (e.g. PHP 8.5.0–8.5.11 with CVE-2026-109618 Zend RCE) or EOL runtime (Critical/High). |
+| **TC-RUNTIME-002** | Runtime Engine Default Vector Hardening | Audit runtime config (`php.ini`, environment, or runtime options) for `session.upload_progress.enabled`, `allow_url_fopen/include`, `disable_functions`, `expose_php`. | `session.upload_progress.enabled = Off` (or strict cleanup); `allow_url_include = Off`; execution wrappers disabled; version headers masked. | `session.upload_progress` active with LFI/memory corruption vector; dangerous execution functions enabled; debug display in prod (High/Critical). |
+| **TC-RUNTIME-003** | Web Server Daemon & FastCGI Module Security | Inspect web server build (`nginx -V`, `httpd -v`), FastCGI / PHP-FPM socket configuration, process isolation, HTTP/2 multiplexing limits, and proxy buffer headers. | Daemon compiled with secure modules; FastCGI socket restricted (`0660 www-data:www-data`); HTTP/2 CONTINUATION mitigations applied; server tokens suppressed. | FastCGI socket world-readable/writable; unmitigated request smuggling; vulnerable daemon version with public exploit (High/Critical). |
+
 ---
 
 # 10. Pre-Fix Assessment Report Template
@@ -481,9 +566,9 @@ For each domain, the agent executes structured test cases and records pass/fail/
 | 6 | CSRF & State-Changing | X.X/10 | [Rating] | [Finding] |
 | 7 | SSRF & Perimeter | X.X/10 | [Rating] | [Finding] |
 | 8 | File Upload & Path Traversal | X.X/10 | [Rating] | [Finding] |
-| 9 | Cryptography, Secrets & Config | X.X/10 | [Rating] | [Finding] |
+| 9 | Cryptography, Secrets & Engine Config | X.X/10 | [Rating] | [Finding] |
 | 10 | Logging, Auditing & SOC Telemetry | X.X/10 | [Rating] | [Finding] |
-| 11 | Software Supply Chain & SCA | X.X/10 | [Rating] | [Finding] |
+| 11 | Software Supply Chain, SCA & Host Runtime | X.X/10 | [Rating] | [Finding] |
 
 ### **Overall Posture: X.X / 10.0** ([Rating])
 ```text
@@ -573,6 +658,90 @@ tags: [attack.t1083, attack.t1078]
 
 #### Retest Procedure
 [Exact steps to confirm fix using two isolated test accounts]
+
+---
+
+### [APP-002] — Host Runtime Vulnerability: PHP Zend Engine Multipart Parser Memory Corruption / RCE (CVE-2026-109618)
+| Field | Value |
+| :--- | :--- |
+| **Severity** | 🔴 Critical |
+| **CVSS v3.1** | **9.8** — `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H` |
+| **CWE** | [CWE-122: Heap-based Buffer Overflow](https://cwe.mitre.org/data/definitions/122.html) |
+| **Related CVE** | [CVE-2026-109618](https://www.cve.org/CVERecord?id=CVE-2026-109618) / [CVE-2026-109619](https://www.cve.org/CVERecord?id=CVE-2026-109619) |
+| **OWASP** | A06:2021 — Vulnerable and Outdated Components |
+| **Test Domain** | Domain 11: Software Supply Chain, Dependencies (SCA) & Host Runtime Security |
+| **Test Case** | TC-RUNTIME-001 |
+| **Component** | Host Runtime: `PHP 8.5.4 (cli) (Zend Engine v4.5.4)` via PHP-FPM / Nginx |
+| **Preconditions** | Unauthenticated remote access |
+
+#### Description & Root Cause
+Host runtime fingerprinting (`php -v`) revealed the application runs on PHP 8.5.4 (Zend Engine v4.5.4). This version falls directly within the known vulnerable release window (PHP 8.5.0 through 8.5.11) affected by heap-based memory corruption and integer underflow in the Zend Engine multipart body parser. When an unauthenticated remote attacker submits a malformed multipart/form-data boundary with specially crafted chunks, the parser miscalculates buffer allocation sizes, enabling arbitrary memory overwrite and potential remote code execution (RCE) in the web server process context.
+
+#### Evidence (Non-destructive Fingerprint Trace)
+```bash
+$ php -v
+PHP 8.5.4 (cli) (built: Feb 12 2026 14:22:10) (NTS)
+Copyright (c) The PHP Group
+Zend Engine v4.5.4, Copyright (c) Zend Technologies
+    with Zend OPcache v8.5.4, Copyright (c), by Zend Technologies
+```
+**NVD / CVE Library Analysis:**
+- Discovered runtime: PHP 8.5.4
+- Vulnerable range: PHP 8.5.0 - 8.5.11
+- Fixed in: PHP 8.5.12 / 8.4.15
+- CISA KEV Status: High exploit likelihood; heap buffer overflow in core parser.
+
+#### CVSS v3.1 Calculation
+| Metric | Value | Rationale |
+| :--- | :--- | :--- |
+| Attack Vector | Network (N) | Exploitable remotely via HTTP POST |
+| Attack Complexity | Low (L) | Public PoC mechanics known |
+| Privileges Required | None (N) | Unauthenticated attacker |
+| User Interaction | None (N) | Automated network trigger |
+| Scope | Unchanged (U) | Execution within PHP process context |
+| Confidentiality | High (H) | Full memory disclosure |
+| Integrity | High (H) | Memory corruption / shell execution |
+| Availability | High (H) | Process crash / DoS |
+| **CVSS Score** | **9.8 (Critical)** | `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H` |
+
+#### Defensive Remediation Guidance
+1. **Immediate Patch Upgrade (Primary Fix):**
+   Upgrade the host PHP binary and runtime packages to PHP 8.5.12 or latest stable upstream release:
+   ```bash
+   apt-get update && apt-get install --only-upgrade php8.5 php8.5-fpm php8.5-cli
+   systemctl restart php8.5-fpm && nginx -s reload
+   ```
+2. **Compensating Engine Hardening (`php.ini`):**
+   While scheduling the patch window, disable multipart upload progress and enforce defensive request body parsing limits in `php.ini`:
+   ```ini
+   session.upload_progress.enabled = Off
+   post_max_size = 10M
+   upload_max_filesize = 10M
+   max_file_uploads = 5
+   ```
+
+#### SOC Detection Rule (Sigma)
+```yaml
+title: Malformed Multipart Boundary Memory Corruption Probe
+status: production
+logsource:
+  category: webserver
+detection:
+  selection:
+    cs_method: POST
+    c_content_type|contains: 'multipart/form-data; boundary='
+    cs_uri_stem|endswith: '.php'
+  suspicious_boundary:
+    cs_header|re: 'boundary=[\-\=]{60,}[^\r\n]{128,}'
+  condition: selection and suspicious_boundary
+level: critical
+tags: [attack.t1190, attack.t1203]
+```
+
+#### Retest Procedure
+1. Re-execute `php -v` and verify patch level is ≥ PHP 8.5.12.
+2. Confirm `session.upload_progress.enabled = Off` via `php -i | grep session.upload_progress`.
+3. Submit verification request and confirm clean 200/400 without parser faults.
 
 ---
 

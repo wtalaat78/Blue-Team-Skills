@@ -49,10 +49,11 @@
 | **Universal Multi-Agent Support** | Ready for Antigravity, Claude Code, Cursor, Windsurf, Copilot, Cline, and custom agents |
 | **Two-Phase Workflow** | Mandatory Pre-Fix Assessment Report before applying any code remediation |
 | **Executive PDF Reports** | Auto-generates branded PDF reports with **Techwaves EGY** logo & contact (`info@techwaves-egy.com`) |
+| **Host Runtime & Engine SCA** | Bridges SAST with host execution environment; fingerprints PHP Zend Engine, Node.js V8, CPython, web servers for engine-level RCEs (e.g. CVE-2026-109618/19) |
 | **11-Domain Scoring** | 0–10 rating per domain with granular, rubric-driven scoring |
 | **Weighted Scoring** | Application profile weighting: Payments, Healthcare, SaaS, Admin, API |
 | **STRIDE Threat Modeling** | Automated Data Flow Diagram & S/T/R/I/D/E analysis before testing |
-| **Test Case Library** | Standardized test cases: `TC-AUTH`, `TC-AUTHZ`, `TC-INJ`, `TC-XSS`, `TC-SSRF` |
+| **Test Case Library** | Standardized test cases: `TC-AUTH`, `TC-AUTHZ`, `TC-INJ`, `TC-XSS`, `TC-SSRF`, `TC-RUNTIME` |
 | **CVSS v3.1 Guidance** | Complete vector breakdown and score derivation in finding dockets |
 | **GraphQL Security** | Testing introspection, query depth/complexity limits, batching DoS, field authz |
 | **CI/CD Security** | Pipeline audit: Gitleaks, CodeQL, Trivy, Checkov, branch protection, Sigstore |
@@ -160,6 +161,7 @@ python -X utf8 scripts/update_cve_library.py
 Located in [`references/cve-library/`](./references/cve-library/), the repository maintains an offline-first library of Critical and High severity CVEs fetched directly from the [NVD/NIST API](https://services.nvd.nist.gov) and [CVE.org](https://www.cve.org).
 
 **AppSec Domains Categorized:**
+- `host_runtime_and_engine_sca.md` (Zend Engine RCEs, Node.js V8 escapes, FastCGI daemons)
 - `authentication_and_session.md`
 - `authorization_and_idor_bola.md`
 - `input_validation_and_injection.md`
