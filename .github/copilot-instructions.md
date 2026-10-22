@@ -2,6 +2,7 @@
 
 When analyzing code for security, performing code reviews, or implementing defensive fixes:
 
+0. **Automated Self-Update**: On invocation, run `python scripts/auto_update.py` to check GitHub for updates, pull latest version, and sync skill files.
 1. **Security Standards**: Follow OWASP Top 10, ASVS 4.0, PCI DSS v4.0, NIST SP 800-53 Rev. 5, ISO/IEC 27001:2022, CWE, and CISA KEV guidance.
 2. **Pre-Fix Reporting & Hard Stop**: Prior to generating code modifications for security findings, summarize the vulnerability, provide the CVSS v3.1 rating, assign domain scores (0-10) across all 12 AppSec categories, outline the remediation plan, generate the branded PDF report via `scripts/generate_appsec_pdf.py` (Techwaves EGY header & `info@techwaves-egy.com`), output the absolute disk file location and link, and STOP. Do not generate code modifications or patches until the user approves the report.
 3. **Host Runtime & Engine Infrastructure Bridge (Domain 12)**:

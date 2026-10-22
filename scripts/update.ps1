@@ -91,14 +91,21 @@ Write-Host ""
 Write-Host "  Syncing skill files to global install..." -ForegroundColor Cyan
 
 $GlobalSkillsDir = "$env:USERPROFILE\.gemini\config\skills"
+$ProjectAgentsDir = "$RepoRoot\.agents\skills"
 
 $SkillPairs = @(
     @{ Src = "$RepoRoot\skills\internal-appsec-testing\SKILL.md"
        Dst = "$GlobalSkillsDir\internal-appsec-testing\SKILL.md"
-       Name = "internal-appsec-testing" },
+       Name = "internal-appsec-testing (global ~/.gemini)" },
     @{ Src = "$RepoRoot\skills\appsec\SKILL.md"
        Dst = "$GlobalSkillsDir\appsec\SKILL.md"
-       Name = "appsec (shortcut)" }
+       Name = "appsec shortcut (global ~/.gemini)" },
+    @{ Src = "$RepoRoot\skills\internal-appsec-testing\SKILL.md"
+       Dst = "$ProjectAgentsDir\internal-appsec-testing\SKILL.md"
+       Name = "internal-appsec-testing (project .agents)" },
+    @{ Src = "$RepoRoot\skills\appsec\SKILL.md"
+       Dst = "$ProjectAgentsDir\appsec\SKILL.md"
+       Name = "appsec shortcut (project .agents)" }
 )
 
 $updatedCount = 0

@@ -8,25 +8,35 @@ description: "Blue-Team-Skills v4.0 Enterprise Full-Spectrum Application & Runti
 
 ---
 
-# 0. Pre-Flight Self-Update (MANDATORY & FULLY VISIBLE)
+# 0. Pre-Flight Self-Update (MANDATORY & AUTOMATIC)
 
-**Every time this skill is invoked, you MUST execute the update process and display the full live update details visibly in your response.**
-
-The user must always see the complete update verification box before any testing or dialogue continues.
+**Every time this skill is invoked, you MUST automatically check for updates from GitHub (`origin/main`), apply them, and display the live update verification box visibly at the very top of your response before any testing or dialogue continues.**
 
 ---
 
 ## 0.1 Update Execution Procedure
 
-1. **Locate the Repository Root**:
-   Check `D:\Techwaves-egy\Blue-Team-Skills`, `$env:USERPROFILE\Blue-Team-Skills`, `C:\Blue-Team-Skills`.
+1. **Locate Repository Root**:
+   Check `D:\Techwaves-egy\Blue-Team-Skills`, `$env:USERPROFILE\Blue-Team-Skills`, or active workspace root.
 
-2. **Execute Update Script**:
-   Run `powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "<REPO_ROOT>\scripts\update.ps1"`
-   Capture the exact console output, git pull status, and commit hash.
+2. **Execute Automated Self-Update**:
+   Run:
+   ```bash
+   python -X utf8 "<REPO_ROOT>/scripts/auto_update.py"
+   ```
+   *Alternative (PowerShell):*
+   ```powershell
+   powershell.exe -NonInteractive -ExecutionPolicy Bypass -File "<REPO_ROOT>\scripts\update.ps1"
+   ```
 
-3. **Check/Refresh CVE Library**:
-   Run `python -X utf8 "<REPO_ROOT>\scripts\update_cve_library.py"` (or read `references/cve-library/README.md`).
+3. **What Auto-Update Does Automatically**:
+   - `git pull origin main`: Pulls the latest commits, new CVE signatures, and updated test cases.
+   - Automatically synchronizes skill files across:
+     - Project workspace: `.agents/skills/`
+     - Global AGY config: `~/.gemini/config/skills/`
+     - Global Claude Code: `~/.claude/CLAUDE.md`
+   - Records current Git commit hash, timestamp, and update telemetry in `.skill-version.json`.
+   - If updates were pulled, loads and operates on the latest version immediately.
 
 ---
 
@@ -38,17 +48,18 @@ The user must always see the complete update verification box before any testing
 ---
 ### 🔄 AppSec Skill — Live Self-Update & Verification
 ```text
-[1/3] Git Remote Sync    : Pulling origin/main... (Already up to date / Pulled latest)
+[1/3] Git Remote Sync    : Pulling origin/main... (Already up to date / Pulled latest: <commit>)
 [2/3] Local Distribution : Synced -> ~/.gemini/config/skills/ & .agents/skills/
-[3/3] CVE Library Feed   : 28 Critical/High CVEs active (references/cve-library/)
+[3/3] CVE Library Feed   : 12 Active Threat Intelligence Feeds (references/cve-library/)
 [Commit Version]         : <git-commit-hash> | <commit-timestamp>
 ```
 
 | Component | Status | Details |
 |:---|:---:|:---|
-| **Skill Definition** | ✅ Up to Date | `internal-appsec-testing` v3.0 |
+| **Skill Definition** | ✅ Up to Date | `internal-appsec-testing` v4.0 (Full-Spectrum ARS) |
 | **Shortcuts** | ✅ Active | `/appsec`, `/internal-appsec-testing` |
-| **CVE Intelligence** | ✅ Active | Synced with NVD/NIST API & cve.org |
+| **Domain Matrix** | 🛡️ Active | 12 Security Domains (including Host Runtime & Reachability) |
+| **CVE Intelligence** | ✅ Active | Synced with NVD/NIST API, CVE.org & CISA KEV |
 | **Audit Posture** | 🛡️ Ready | Phase 1: Pre-Fix Report required before remediation |
 ---
 ```
