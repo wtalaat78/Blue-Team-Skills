@@ -105,7 +105,13 @@ $SkillPairs = @(
        Name = "internal-appsec-testing (project .agents)" },
     @{ Src = "$RepoRoot\skills\appsec\SKILL.md"
        Dst = "$ProjectAgentsDir\appsec\SKILL.md"
-       Name = "appsec shortcut (project .agents)" }
+       Name = "appsec shortcut (project .agents)" },
+    @{ Src = "$RepoRoot\skills\security-audit\SKILL.md"
+       Dst = "$GlobalSkillsDir\security-audit\SKILL.md"
+       Name = "security-audit (global ~/.gemini)" },
+    @{ Src = "$RepoRoot\skills\security-audit\SKILL.md"
+       Dst = "$ProjectAgentsDir\security-audit\SKILL.md"
+       Name = "security-audit (project .agents)" }
 )
 
 $updatedCount = 0

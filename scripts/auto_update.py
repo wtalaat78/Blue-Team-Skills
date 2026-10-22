@@ -91,6 +91,13 @@ def auto_update(refresh_cve=False):
         (repo_root / "skills" / "appsec" / "SKILL.md",
          global_gemini_skills / "appsec" / "SKILL.md",
          "appsec shortcut (global ~/.gemini)"),
+        # Security Audit Skill (Cloudflare Multi-Agent Integration)
+        (repo_root / "skills" / "security-audit" / "SKILL.md",
+         repo_root / ".agents" / "skills" / "security-audit" / "SKILL.md",
+         "security-audit (workspace .agents)"),
+        (repo_root / "skills" / "security-audit" / "SKILL.md",
+         global_gemini_skills / "security-audit" / "SKILL.md",
+         "security-audit (global ~/.gemini)"),
     ]
 
     # Optional Claude Code sync
@@ -117,27 +124,40 @@ def auto_update(refresh_cve=False):
             shutil.copy2(src, dst)
             updated_count += 1
 
+    # Also sync all companion files for security-audit (.cjs, .json, .md)
+    sec_audit_src = repo_root / "skills" / "security-audit"
+    if sec_audit_src.exists():
+        for comp_dst in [repo_root / ".agents" / "skills" / "security-audit", global_gemini_skills / "security-audit"]:
+            comp_dst.mkdir(parents=True, exist_ok=True)
+            for fpath in sec_audit_src.glob("*.*"):
+                dst_f = comp_dst / fpath.name
+                if not dst_f.exists() or get_file_hash(fpath) != get_file_hash(dst_f):
+                    shutil.copy2(fpath, dst_f)
+
     # 4. Refresh CVE Library (if requested)
     if refresh_cve:
         cve_script = repo_root / "scripts" / "update_cve_library.py"
         if cve_script.exists():
             run_cmd([sys.executable, str(cve_script)], cwd=repo_root, timeout=30)
 
-    # Count active CVE library references
+    # Count active CVE library references & Attack Classes
     cve_files = glob.glob(str(repo_root / "references" / "cve-library" / "*.md"))
     cve_count = len(cve_files)
+    attack_class_files = glob.glob(str(repo_root / "references" / "attack-classes" / "*.md"))
+    attack_class_count = len(attack_class_files)
 
     # 5. Write version stamp
     version_file = repo_root / ".skill-version.json"
     version_data = {
-        "framework": "Blue-Team-Skills v4.0 (Full-Spectrum ARS)",
+        "framework": "Blue-Team-Skills v4.1 (Full-Spectrum ARS + Multi-Agent Verification)",
         "last_updated": timestamp,
         "git_commit": commit_hash,
         "commit_msg": commit_msg,
         "git_remote_status": pull_status,
         "skills_updated": updated_count,
         "skills_current": skipped_count,
-        "cve_library_files": cve_count
+        "cve_library_files": cve_count,
+        "attack_class_modules": attack_class_count
     }
     with open(version_file, "w", encoding="utf-8") as f:
         json.dump(version_data, f, indent=2)
@@ -150,22 +170,26 @@ def format_verification_banner(data):
     pull_status = data.get("git_remote_status", "Synced")
     cve_count = data.get("cve_library_files", 12)
 
+    attack_count = data.get("attack_class_modules", 15)
+
     banner = f"""---
 ### 🔄 AppSec Skill — Live Self-Update & Verification
 ```text
-[1/3] Git Remote Sync    : Pulling origin/main... ({pull_status})
-[2/3] Local Distribution : Synced -> ~/.gemini/config/skills/ & .agents/skills/
-[3/3] CVE Library Feed   : {cve_count} Active Threat Intelligence Feeds (references/cve-library/)
+[1/4] Git Remote Sync    : Pulling origin/main... ({pull_status})
+[2/4] Local Distribution : Synced -> ~/.gemini/config/skills/ & .agents/skills/
+[3/4] Threat Intelligence: {cve_count} Active CVE Feeds (references/cve-library/)
+[4/4] Attack Class Matrix: {attack_count} Deep Hunting Guides (references/attack-classes/)
 [Commit Version]         : {commit} | {ts}
 ```
 
 | Component | Status | Details |
 |:---|:---:|:---|
-| **Skill Definition** | ✅ Up to Date | `internal-appsec-testing` v4.0 (Full-Spectrum ARS) |
-| **Shortcuts** | ✅ Active | `/appsec`, `/internal-appsec-testing` |
-| **Domain Matrix** | 🛡️ Active | 12 Security Domains (including Host Runtime & Reachability) |
-| **CVE Intelligence** | ✅ Active | Synced with NVD/NIST API, CVE.org & CISA KEV |
-| **Audit Posture** | 🛡️ Ready | Phase 1: Pre-Fix Report required before remediation |
+| **Skill Definition** | ✅ Up to Date | `internal-appsec-testing` v4.1 (Full-Spectrum ARS + Multi-Agent Verification) |
+| **Shortcuts / Skills** | ✅ Active | `/appsec`, `internal-appsec-testing`, `security-audit` |
+| **Verification Gate** | 🛡️ Active | Multi-Agent Adversarial Verifier (Hunters vs. Independent Verifiers) |
+| **Coverage Engine** | 📊 Active | Deterministic `coverage-ledger.json` & Zero-Dependency Schema Validators |
+| **Domain Matrix** | 🛡️ Active | 12 Security Domains (including Host Runtime, AI/LLM, Reachability) |
+| **Audit Posture** | 🛡️ Ready | Phase 1: Pre-Fix Report & Hard Stop required before remediation |
 ---"""
     return banner
 
