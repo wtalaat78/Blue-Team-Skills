@@ -1,7 +1,7 @@
 # User Guide — Internal AppSec Testing Skill
 ### `internal-appsec-testing` · `/appsec`
 
-**Version:** 3.0 | **Author:** Waleed Talaat / Techwaves-egy  
+**Version:** 4.0 Enterprise ARS | **Author:** Waleed Talaat / Techwaves-egy  
 **Repository:** https://github.com/wtalaat78/Blue-Team-Skills
 
 ---
@@ -36,7 +36,7 @@ This skill turns your AI agent (Antigravity/AGY) into a **Senior Application Sec
 
 | Capability | What It Produces |
 | :--- | :--- |
-| **Security Assessment** | Structured Pre-Fix Report with scores for 11 security domains |
+| **Security Assessment** | Structured Pre-Fix Report with scores for 12 security domains (ARS v4.0) |
 | **Vulnerability Findings** | Detailed dockets with CVSS score, CWE, PoC, and code-level fix |
 | **STRIDE Threat Modeling** | Data flow analysis and trust boundary mapping |
 | **Test Case Execution** | Step-by-step tests: auth, IDOR, injection, XSS, SSRF, and more |
@@ -318,7 +318,7 @@ Agent will produce:
 
 ### STEP 6 — Test Domain Execution
 
-The agent systematically tests all 11 security domains using the built-in test case library.
+The agent systematically tests all 12 security domains using the built-in test case library (including Host Runtime Engine discovery and Reachability analysis).
 
 Each test looks like this:
 
@@ -355,7 +355,7 @@ After all tests complete, the agent produces the **Pre-Fix Report**.
 The report contains:
 - Executive Summary
 - STRIDE threat summary
-- Security Posture Scorecard (11 domains, each with X.X/10 score)
+- Security Posture Scorecard (12 domains, each with X.X/10 score)
 - Detailed finding dockets with CVSS scores and code examples
 - SOC detection rules (Sigma/KQL)
 - CVE Library matches for your dependencies
@@ -517,7 +517,7 @@ Example — Domain 1 (Authentication):
 ### Overall Score
 
 ```
-Overall = Sum of all 11 domain scores ÷ 11
+Overall = Sum of all 12 domain scores ÷ 12
 ```
 
 Or weighted by application type (Section 3.1 of the skill):
@@ -778,12 +778,12 @@ Ask the agent to justify the score:
 │  PHASES        Phase 1: Pre-Fix Report (get approval)   │
 │                Phase 2: Remediate + Retest              │
 ├─────────────────────────────────────────────────────────┤
-│  DOMAINS (11)  Auth · Authz/IDOR · Injection · XSS      │
-│                API · CSRF · SSRF · Upload · Engine/Crypto│
-│                Logging · Supply Chain & Host Runtime    │
+│  DOMAINS (12)  Auth · Authz/IDOR · Injection · XSS      │
+│                API · CSRF · SSRF · Upload · Crypto/TLS  │
+│                Logging · App SCA · Host Runtime & Daemons│
 ├─────────────────────────────────────────────────────────┤
 │  SCORING       0–10 per domain │ Rubric-based           │
-│                Overall = avg(all 11) or weighted        │
+│                Overall = avg(all 12) or weighted        │
 ├─────────────────────────────────────────────────────────┤
 │  CVE LIBRARY   references/cve-library/                  │
 │                Updated daily at 06:00 UTC               │

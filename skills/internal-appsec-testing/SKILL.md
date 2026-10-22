@@ -1,10 +1,10 @@
 ---
 name: internal-appsec-testing
-description: "Comprehensive guide for Senior Application Security Engineers and Blue Team members covering authorized security testing, 10-point posture scoring per test category, mandatory Pre-Fix Assessment Reports, web/API/GraphQL vulnerability assessments (OWASP Top 10, IDOR/BOLA, auth, injection, SSRF, JWT, supply chain), STRIDE threat modeling, CVSS scoring, secure code review, CI/CD pipeline security, SOC detection engineering, live exploit escalation protocol, and post-fix retesting with score delta reporting."
+description: "Blue-Team-Skills v4.0 Enterprise Full-Spectrum Application & Runtime Security (ARS) framework. Comprehensive guide for Senior AppSec Engineers and Blue Team members covering 12 assessment domains, host runtime engine discovery (Zend Engine, V8, CPython, JVM, .NET, web daemons), CISA KEV & EPSS exploit intelligence correlation, dependency reachability analysis, 4-tier Blue Team Defense Kit generation (Code, WAF, Sigma, Workaround), compliance standards mapping (OWASP ASVS 4.0, PCI DSS v4.0, NIST SP 800-53, ISO 27001:2022), STRIDE threat modeling, CVSS v3.1 scoring, and strict two-phase workflow with mandatory executive PDF reporting."
 ---
 
 # Internal Application Security & Authorized Security Testing
-**Version:** 3.0 | **Role:** Senior AppSec Engineer · Blue Team Lead
+**Version:** 4.0 Enterprise ARS | **Role:** Senior AppSec Engineer & Blue Team Lead
 
 ---
 
@@ -83,7 +83,7 @@ Input Received
               Run STRIDE Threat Model (Section 8)
                           │
                           ▼
-              Execute Test Domains 1-11 with Scoring (Section 9)
+              Execute Test Domains 1-12 with Scoring (Section 9)
                           │
                           ▼
         ┌─ Live active exploit discovered? → ESCALATE (Section 11)
@@ -112,23 +112,27 @@ You are a **Senior Application Security Engineer, Web/API Security Tester, Secur
 Your mission is to identify, validate, prioritize, **report (before fixing)**, remediate, and retest security vulnerabilities in applications the organization owns or is explicitly authorized to assess.
 
 Specializations:
-- Web / REST / GraphQL API security
+- Full-Spectrum Application & Host Runtime Security (ARS) across 12 Security Domains
+- Web / REST / GraphQL API security & workflow state integrity
 - Authentication, MFA, SSO, OAuth 2.0 / OIDC, Microsoft Entra ID, JWT
 - Authorization, RBAC, multi-tenancy, IDOR / BOLA
 - Input validation, injection (SQLi, NoSQLi, Command, SSTI, LDAP, XPath)
 - XSS (Reflected, Stored, DOM), CSRF, SSRF, path traversal, file uploads
 - Business-logic flaws, workflow bypass, mass assignment
-- Secrets detection, key rotation, credential governance
-- Software supply chain, SCA, CVE management, SBOM
-- Secure configuration, TLS, cryptographic integrity, HTTP security headers
+- Cryptography, secrets governance, TLS 1.3, key rotation, cloud vaults
+- Application supply chain (SCA), SBOM, dependency reachability & call-graph analysis
+- Host runtime engine auditing (PHP Zend Engine, Node.js V8, Python CPython, JVM, .NET CLR)
+- Web server daemons & FastCGI gateways (IIS, Nginx, Apache, Envoy)
+- Dynamic CISA KEV catalog cross-referencing & EPSS percentile scoring
+- Multi-tier Blue Team Defense Kit generation (Code Patch, WAF Rule, Sigma Rule, Hotfix Workaround)
+- Regulatory compliance mapping (OWASP ASVS 4.0, PCI DSS v4.0, NIST SP 800-53 Rev. 5, ISO/IEC 27001:2022)
 - Secure code review (SAST), data-flow / source-to-sink analysis
 - DAST, runtime validation, penetration testing methodology
 - STRIDE threat modeling, trust boundary analysis
-- SOC detection engineering — Sigma, KQL, Splunk SPL
+- SOC detection engineering — Sigma v2.0, KQL, Splunk SPL
 - CI/CD pipeline security, build-time security gates, IaC scanning
 - CVSS v3.1 scoring, risk-based prioritization
-- 10-point posture scoring, pre-fix / post-fix reporting
-- CVE library cross-referencing (see `references/cve-library/`)
+- 10-point posture scoring, pre-fix / post-fix reporting & executive PDF generation
 
 ---
 
@@ -138,7 +142,7 @@ Specializations:
 ╔═══════════════════════════════════════════════════════════════╗
 ║           PHASE 1: PRE-FIX ASSESSMENT REPORT                 ║
 ║  Scope → Inventory → Attack Surface → Threat Model           ║
-║  → Test Domains 1–11 → Domain Scoring → Findings             ║
+║  → Test Domains 1–12 → Domain Scoring → Finding Dockets             ║
 ║  → SOC Detection Rules → CVE Cross-Reference                  ║
 ║  → Pre-Fix Report Generated                                   ║
 ║                                                               ║
@@ -169,7 +173,7 @@ Specializations:
 | **3.0 – 4.9** | High Risk | 🟠 | Fix within 7–14 days |
 | **0.0 – 2.9** | Critical Exposure | 🔴 | Emergency: 24–48h |
 
-### Per-Domain Scoring Rubrics (11 Domains)
+### Per-Domain Scoring Rubrics (12 Domains)
 
 #### Domain 1: Authentication & Session Security
 
@@ -251,33 +255,30 @@ Specializations:
 | **3–4** | Path traversal confirmed: `../../etc/passwd` accessible; executable upload in webroot. |
 | **0–2** | Web shell upload and execution confirmed; full filesystem access via path traversal. |
 
-#### Domain 9: Cryptography, Secrets & Host Runtime Engine Configuration
+#### Domain 9: Cryptography, Secrets & Transport Security
 
-Audits cryptographic posture, secret governance, and host runtime engine hardening directives across `php.ini`, Node.js CLI flags, and Web Server / Gateway configurations.
+Audits cryptographic posture, secret governance, key lifecycle, TLS/transport security, and credential protection across the application stack.
 
-##### Runtime Engine Directives Audit:
-1. **PHP Engine Directives (`php.ini`):**
-   - `session.upload_progress.enabled`: Verify if enabled. If set to `1` without `session.upload_progress.cleanup = 1` or in the presence of LFI / multipart upload parser flaws, this is a primary vector for php2shell, session file poisoning, and Zend Engine memory corruption. Must be disabled (`session.upload_progress.enabled = Off`) unless strictly required and secured.
-   - `allow_url_fopen` & `allow_url_include`: Must verify `allow_url_include = Off` (blocks Remote File Inclusion / RFI). `allow_url_fopen` should be disabled unless strictly required for outbound API calls.
-   - `expose_php = Off`: Disables `X-Powered-By: PHP/x.x.x` HTTP banner leakage.
-   - `disable_functions`: Must verify dangerous execution wrappers and process functions are restricted in production:
-     `disable_functions = exec,shell_exec,system,passthru,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source,phpinfo`
-   - Production Error Bailouts: `display_errors = Off`, `display_startup_errors = Off`, `log_errors = On`, `error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT`.
-   - Resource Bailout Defenses: `memory_limit`, `max_execution_time`, `max_input_time`, `post_max_size`, `max_file_uploads` set to defensive thresholds to prevent memory exhaustion DoS.
-2. **Node.js Runtime Flags:**
-   - Prohibit dangerous production CLI flags: `--experimental-vm-modules`, `--insecure-http-parser`, `--no-warnings`.
-   - Enforce strict unhandled promise rejection policy: `unhandledRejections=strict`.
-3. **Web Server & Gateway Hardening:**
-   - Nginx: `server_tokens off;`, `client_max_body_size`, fastcgi socket permissions (`0660` owned by `www-data`), `proxy_cookie_path` / `proxy_cookie_flags`.
-   - Apache: `ServerTokens Prod`, `ServerSignature Off`, `TraceEnable Off`, `LimitRequestBody`.
+##### Cryptography & Secrets Audit Vectors:
+1. **Transport Layer Security (TLS):**
+   - Enforce TLS 1.3 (or strictly TLS 1.2+ with modern AEAD cipher suites: ECDHE-ECDSA-AES256-GCM-SHA384, ECDHE-RSA-CHACHA20-POLY1305).
+   - Prohibit deprecated protocols (SSLv3, TLS 1.0, TLS 1.1) and weak ciphers (RC4, 3DES, CBC-mode ciphers).
+   - Enforce HTTP Strict Transport Security (`HSTS` with `max-age=31536000; includeSubDomains; preload`).
+2. **Secrets Governance & Zero Hardcoding:**
+   - Scan repository and history for embedded credentials, API keys, private keys, database passwords, and JWT signing secrets using Gitleaks/TruffleHog.
+   - Enforce centralized secret management using enterprise vaults (Azure Key Vault, AWS Secrets Manager, HashiCorp Vault, GCP Secret Manager).
+3. **Data-at-Rest & Cryptographic Agility:**
+   - Verify sensitive data encryption (AES-256-GCM or ChaCha20-Poly1305) with unique IV/nonce per operation.
+   - Verify secure password hashing: Argon2id (`t=2, m=65536, p=1`), bcrypt (`cost >= 12`), or PBKDF2 (`iterations >= 600000`).
+   - Validate automated key rotation schedules and key-encryption-key (KEK) separation.
 
 | Score | Criteria |
 | :---: | :--- |
-| **9–10** | TLS 1.3 only; zero hardcoded secrets (Gitleaks clean); secrets in vault (Azure KV / AWS SM); all security headers A+; HSTS preloaded. Host runtime engine directives fully hardened: `session.upload_progress.enabled = Off`, dangerous execution functions (`disable_functions`) strictly restricted, `expose_php = Off`, `server_tokens off`, `allow_url_include = Off`, and production error bailouts (`display_errors = Off`, `log_errors = On`) enforced. |
-| **7–8** | TLS 1.2+ active; HSTS enabled; primary security headers present; no secrets in source. Runtime engine has baseline hardening: `display_errors = Off`, `allow_url_include = Off`, server version tokens masked, and execution wrappers audited. |
-| **5–6** | TLS 1.2 with weak ciphers; missing Permissions/Referrer policies; committed non-prod API keys. Runtime engine leaks version banners (`expose_php = On`, `ServerTokens OS`); default `session.upload_progress.enabled = On` without strict cleanup lock; non-critical execution functions enabled. |
-| **3–4** | Hardcoded secrets in code; TLS 1.0/1.1 enabled; missing HSTS. `display_errors = On` in production web responses; `disable_functions` completely unconfigured with arbitrary command execution risk; `allow_url_fopen` / `allow_url_include` permissive. |
-| **0–2** | Production credentials in Git history; plain HTTP in transit. `allow_url_include = On` permitting direct Remote File Inclusion (RFI); `session.upload_progress.enabled = On` exposed in presence of LFI or known multipart memory corruption vectors; full stack traces and environment variables dumped in client error pages. |
+| **9–10** | TLS 1.3 only with AEAD ciphers; HSTS preloaded; zero secrets in code or git history; secrets strictly injected from enterprise vault with dynamic rotation; modern authenticated encryption (AES-GCM / Argon2id) used exclusively; strict certificate pinning/validation. |
+| **7–8** | TLS 1.2+ active; HSTS enabled; primary security headers present; no plaintext secrets in source code; secrets loaded via environment variables; industry standard encryption libraries used. |
+| **5–6** | TLS 1.2 supported with legacy CBC ciphers; missing HSTS or Referrer policies; non-production API keys committed in test fixtures; custom or non-standard cryptographic wrapper classes present. |
+| **3–4** | Hardcoded secrets or JWT signing keys in source code; TLS 1.0/1.1 enabled; missing HSTS; legacy SHA-1 or MD5 used for token signatures; unencrypted database backups containing credentials. |
+| **0–2** | Production credentials/private keys committed in Git history; plain unencrypted HTTP in transit; broken or reversible cryptography (DES, RC4, ECB mode, XOR encoding, hardcoded AES keys); passwords stored in plaintext or unsalted MD5/SHA-1. |
 
 #### Domain 10: Security Logging, Auditing & SOC Telemetry
 
@@ -289,46 +290,78 @@ Audits cryptographic posture, secret governance, and host runtime engine hardeni
 | **3–4** | Failed auth not logged; no correlation IDs; logs don't reach SIEM. |
 | **0–2** | No security logging; passwords visible in logs; logs writable by application user. |
 
-#### Domain 11: Software Supply Chain, Dependencies (SCA) & Host Runtime Security
+#### Domain 11: Application Supply Chain & Package SCA
 
-Evaluates both application-level package manifests (Domain 11.1) and underlying host interpreter/compiler execution runtimes (Domain 11.2).
+Audits third-party packages, libraries, frameworks, and manifest declarations (`composer.json`, `package.json`, `requirements.txt`, `pom.xml`, `go.mod`, `Cargo.toml`).
 
-##### Domain 11.1: Application Manifest & Library SCA
-- Audits application package manifests (`package.json`, `composer.json`, `requirements.txt`, `pom.xml`, `go.mod`, etc.).
-- Verifies pinned lockfiles (`package-lock.json`, `composer.lock`, `Pipfile.lock`), dependency hash verification, and transitive dependency trees.
+##### Dependency Reachability & Static Call-Graph Analysis:
+To eliminate false positives and prioritize high-risk dependencies, Domain 11 differentiates between **Installed Packages** and **Reachable Packages**:
+- **Installed Dependency:** Present in manifest or `vendor/` / `node_modules/` directory.
+- **Directly Reachable Dependency (`[DIRECTLY REACHABLE]`):** The vulnerable class, method, or function is actively imported, instantiated, or reachable along an active application execution path or controller route. Triggers maximum severity and immediate remediation SLA.
+- **Transitive / Unverified (`[TRANSITIVE / UNVERIFIED]`):** The package is a secondary dependency in the lockfile tree, but direct application call chains are unconfirmed.
+- **Unreachable Dependency (`[UNREACHABLE]`):** The package or vulnerable function is never invoked or is neutralized by defensive wrappers. Downgraded in prioritization.
 
-##### Domain 11.2: Host Runtime & Engine SCA (Mandatory Engine Vulnerability Auditing)
-- Mandates checking the fingerprinted host runtime version (PHP Zend Engine, Node.js V8, CPython, JVM, .NET CLR, Web Server daemons) against NVD, NIST, CVE.org, and CISA KEV for core engine vulnerabilities.
-- Actively checks for core engine-level vulnerabilities:
-  - Zend Engine Remote Code Execution (RCE) and memory corruption bugs (e.g. CVE-2026-109618, CVE-2026-109619, PHP multipart body parser buffer overflows, integer underflows in streams/filters).
-  - Node.js / V8 engine sandbox escapes, prototype pollution in internal modules, buffer overflows in HTTP parser.
-  - Python CPython memory corruption in `ctypes`, `pickle`, or `ssl` bindings.
-  - Web Server daemon request smuggling, HTTP/2 CONTINUATION flood (CVE-2024-27983), mod_proxy buffer overflows.
-- **MANDATORY CRITICAL RULE**: If a discovered host runtime falls within a known vulnerable range (e.g. PHP 8.5.0–8.5.11 unpatched for Zend Engine RCE, unpatched Node.js LTS, or End-of-Life / unsupported runtime release), the agent **MUST automatically docket an immediate High or Critical finding** with CVSS v3.1 calculation and block clean posture rating. EOL runtimes cap Domain 11 score at max 3.0/10.
+##### Software Bill of Materials (SBOM) & Verification:
+- Generate and audit machine-readable SBOM (CycloneDX / SPDX formats).
+- Verify cryptographic lockfiles (`composer.lock`, `package-lock.json`, `Pipfile.lock`, `Cargo.lock`) with integrity checksum verification.
+- Enforce automated CI build gates failing on unpatched CVSS ≥ 7.0 CVEs with public exploit vectors.
 
 | Score | Criteria |
 | :---: | :--- |
-| **9–10** | Comprehensive SBOM generated; all application dependencies pinned with integrity hashes; host runtime engine on the latest vendor security patch release; zero known engine CVEs; automated runtime and base-image patch pipeline; artifact signing (Sigstore/Cosign). |
-| **7–8** | SCA tool active in CI gating builds; no CVSS ≥ 9.0 CVEs in application libraries; host runtime is an actively supported LTS release within 1 patch of latest; zero known High/Critical engine CVEs. |
-| **5–6** | Known Medium CVEs in application libraries; SCA running in report-only mode; host runtime has low/medium unpatched CVEs or is nearing official vendor End-of-Life (< 3 months). |
-| **3–4** | Known High CVEs (CVSS 7.0–8.9) in production application dependencies OR host runtime has unpatched High engine CVE; runtime is officially End-of-Life (EOL) without extended security support; no SCA gates. |
-| **0–2** | Known Critical CVEs (CVSS ≥ 9.0) in application libraries OR **host runtime falls within a known vulnerable range** (e.g., PHP Zend Engine RCEs like CVE-2026-109618 / CVE-2026-109619, V8 sandbox escapes, Node.js HTTP parser RCE); unmaintained EOL runtime with known public exploits; no lockfile. |
+| **9–10** | Comprehensive SBOM generated; all application dependencies pinned with cryptographic integrity hashes; automated SCA gate in CI blocking builds on CVSS ≥ 7.0; artifact signing (Sigstore/Cosign); zero reachability of known CVEs; automated dependency vulnerability alerts with auto-remediation PRs. |
+| **7–8** | SCA tool active in CI gating builds; no CVSS ≥ 9.0 CVEs in application libraries; dependency lockfiles committed and verified; all directly reachable libraries are within vendor support lifecycle. |
+| **5–6** | Known Medium CVEs in application libraries; SCA running in report-only mode; transitive dependencies not pinned with integrity hashes; outdated minor releases (>6 months behind upstream). |
+| **3–4** | Known High CVEs (CVSS 7.0–8.9) in production application dependencies; unverified transitive packages with known public exploits; no SCA gates in CI/CD; dependencies abandoned by upstream maintainers. |
+| **0–2** | Known Critical CVEs (CVSS ≥ 9.0) in directly reachable application dependencies (e.g. Log4Shell, Spring4Shell); vulnerable components exploitable unauthenticated; no lockfile committed; arbitrary untrusted repository sources configured. |
+
+#### Domain 12: Host Runtime Engine, Daemon & System Infrastructure
+
+Audits the host execution environment, interpreter/compiler engines, web server daemons, native system libraries, and runtime process configurations underlying the application code.
+
+##### Scope & Audit Vectors:
+1. **Core Runtime Engine Audit:**
+   - Interrogate host binary versions: PHP Zend Engine (`php -v`), Node.js V8 (`node -v`), Python CPython (`python -V`), JVM (`java -version`), .NET CLR (`dotnet --info`).
+   - Audit build date, compiler options (MSVC vs GCC), architecture (x64/x86), and threading model (NTS vs ZTS).
+   - Cross-reference runtime versions against NVD, CVE.org, and CISA KEV for core engine RCEs and memory corruption vulnerabilities (e.g., PHP Zend Engine `longjmp` memory corruption CVE-2026-109618 / CVE-2026-109619, PHP cgi-bin argument injection CVE-2024-4577, Node.js HTTP parser bugs).
+   - Verify runtime End-of-Life (EOL) status against official vendor support calendars.
+2. **Runtime Configuration Profiling (`php.ini`, `web.config`, `nginx.conf`, environment):**
+   - `session.upload_progress.enabled`: Must be disabled (`session.upload_progress.enabled = Off`). When enabled, unauthenticated multipart requests can create weaponizable session files, enabling Local File Inclusion (LFI) escalation and memory corruption in vulnerable Zend Engine releases.
+   - `allow_url_include = Off` & `allow_url_fopen = Off`: Prevent Remote File Inclusion (RFI) and unvalidated outbound streams.
+   - `expose_php = Off`: Disables `X-Powered-By` runtime banners.
+   - `disable_functions`: Enforce strict restriction of process execution wrappers:
+     `disable_functions = exec,shell_exec,system,passthru,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source,phpinfo`
+   - Production Error Bailouts: `display_errors = Off`, `display_startup_errors = Off`, `log_errors = On`.
+   - Resource Thresholds: `memory_limit`, `post_max_size`, `upload_max_filesize`, `max_file_uploads` set to defensive thresholds.
+3. **Web Server Daemon & Gateway Hardening:**
+   - Web Server: Nginx (`server_tokens off;`), Apache (`ServerTokens Prod`, `ServerSignature Off`), IIS, Envoy.
+   - FastCGI / PHP-FPM: Unix socket permissions (`0660 www-data:www-data`), process pool isolation, HTTP/2 CONTINUATION flood limits (CVE-2024-27983).
+4. **Native System Libraries & Container Environment:**
+   - Audit host shared libraries: OpenSSL (`openssl version`), libxml2, ImageMagick, cURL.
+   - Container base image vulnerability scans and non-root process execution.
+
+| Score | Criteria |
+| :---: | :--- |
+| **9–10** | Fully updated LTS runtime with zero known CVEs, patched to the latest vendor build, running on hardened minimalist runtime container/OS; non-root execution; strict seccomp/AppArmor/SELinux profiles; dangerous engine directives explicitly disabled (`session.upload_progress.enabled = Off`, `allow_url_include = Off`, `disable_functions` configured with exec wrappers disabled, `expose_php = Off`, `open_basedir` enforced); web server daemon hardened with minimal modules; TLS 1.3 only; strict process isolation. |
+| **7–8** | Supported runtime release within active vendor support window; no Critical or High CVEs in core engine or bundled modules; standard web server daemon configuration; legacy insecure flags disabled (`display_errors = Off`, `allow_url_include = Off`). |
+| **5–6** | Runtime within security-fixes-only support phase or minor patch lag (>90 days behind current patch level); non-exploitable Low/Medium CVEs present; default verbose banners (`Server`, `X-Powered-By`) exposed; `session.upload_progress` left enabled without multipart protections. |
+| **3–4** | Runtime approaching EOL or containing unpatched High-severity CVEs; default dangerous configuration directives enabled; web server daemon running outdated FastCGI/PHP-FPM modules prone to argument injection (e.g. CVE-2024-4577); `disable_functions` unconfigured. |
+| **0–2** | Runtime contains an unpatched Critical Remote Code Execution (RCE) or memory corruption vulnerability (e.g. PHP Zend Engine `longjmp` RCE CVE-2026-109618 / CVE-2026-109619, CISA KEV catalog match, or EOL runtime >12 months without vendor patches). Requires immediate emergency docket and 24-48h SLA. |
 
 ### Overall Score Formula
 
-$$\text{Overall} = \frac{\sum_{i=1}^{11} \text{Domain Score}_i}{11}$$
+$$\text{Overall} = \frac{\sum_{i=1}^{12} \text{Domain Score}_i}{12}$$
 
 *Or apply **Application Profile Weighted Scoring** from Section 3.1.*
 
 ### 3.1 Weighted Scoring by Application Profile
 
-| Profile | D1 Auth | D2 Authz | D3 Inject | D4 XSS | D5 API | D6 CSRF | D7 SSRF | D8 Upload | D9 Crypto | D10 Log | D11 SCA |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Payments / FinTech** | ×2 | ×2.5 | ×2 | ×1 | ×1.5 | ×1.5 | ×1 | ×1 | ×2 | ×2 | ×1 |
-| **Healthcare / PHI** | ×2 | ×2 | ×1.5 | ×1 | ×1 | ×1 | ×1 | ×1 | ×2 | ×2 | ×1.5 |
-| **SaaS / Multi-Tenant** | ×1.5 | ×3 | ×1.5 | ×1 | ×2 | ×1 | ×1.5 | ×1 | ×1.5 | ×1.5 | ×1 |
-| **Public Developer API** | ×1 | ×2 | ×2.5 | ×1 | ×2.5 | ×1 | ×2 | ×1 | ×1.5 | ×1.5 | ×2 |
-| **Internal Admin Portal** | ×2 | ×2 | ×1.5 | ×1.5 | ×1 | ×2 | ×1 | ×1 | ×1.5 | ×2 | ×1 |
+| Profile | D1 Auth | D2 Authz | D3 Inject | D4 XSS | D5 API | D6 CSRF | D7 SSRF | D8 Upload | D9 Crypto | D10 Log | D11 App SCA | D12 Runtime |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Payments / FinTech** | ×2 | ×2.5 | ×2 | ×1 | ×1.5 | ×1.5 | ×1 | ×1 | ×2 | ×2 | ×1 | ×1.5 |
+| **Healthcare / PHI** | ×2 | ×2 | ×1.5 | ×1 | ×1 | ×1 | ×1 | ×1 | ×2 | ×2 | ×1 | ×1.5 |
+| **SaaS / Multi-Tenant** | ×1.5 | ×3 | ×1.5 | ×1 | ×2 | ×1 | ×1.5 | ×1 | ×1.5 | ×1.5 | ×1 | ×1.5 |
+| **Public Developer API** | ×1 | ×2 | ×2.5 | ×1 | ×2.5 | ×1 | ×2 | ×1 | ×1.5 | ×1.5 | ×1.5 | ×1.5 |
+| **Internal Admin Portal** | ×2 | ×2 | ×1.5 | ×1.5 | ×1 | ×2 | ×1 | ×1 | ×1.5 | ×2 | ×1 | ×2 |
 
 ---
 
@@ -415,12 +448,22 @@ During Phase 1, the assessor **MUST NOT stop at application-level package manife
 
 ### Host Runtime Fingerprint Summary Table (Required in Pre-Fix Report Section 4):
 ```markdown
-| Component | Detected Version | Build / Options | Arch | Known Vulnerable Range? | Status |
+| Component | Detected Version | Build / Options | Arch | CISA KEV / Threat Intel | Posture Status |
 | :--- | :--- | :--- | :--- | :---: | :--- |
-| **PHP Runtime** | PHP 8.5.4 | Zend Engine v4.5.4 (NTS) | x64 | ⚠️ 8.5.0–8.5.11 (CVE-2026-109618) | 🔴 CRITICAL EXPOSURE |
-| **Web Server** | Nginx 1.26.1 | OpenSSL 3.0.13, HTTP/2 | x64 | Clean | 🟢 Compliant |
-| **Database** | PostgreSQL 16.3 | Debian 16.3-1.pgdg120+1 | x64 | Clean | 🟢 Compliant |
+| **PHP Runtime** | PHP 8.5.4 | Zend Engine v4.5.4 (NTS) | x64 | ⚠️ CISA KEV / CVE-2026-109618 | 🔴 CRITICAL EXPOSURE |
+| **Web Server** | Nginx 1.26.1 | OpenSSL 3.0.13, HTTP/2 | x64 | Clean / No KEV | 🟢 COMPLIANT |
+| **Database** | PostgreSQL 16.3 | Debian 16.3-1.pgdg120+1 | x64 | Clean / No KEV | 🟢 COMPLIANT |
+| **Crypto Library**| OpenSSL 3.0.13 | System Shared Library | x64 | Clean / No KEV | 🟢 COMPLIANT |
 ```
+
+## 6.2 Dependency Reachability & Call-Graph Analysis Engine
+
+During Phase 1 SCA auditing, do not report inactive library dependencies as urgent production vulnerabilities:
+1. **Static Call-Graph Tracing:** Map application routes (`web.php`, `api.php`, Express routers, Django urls) to controllers and services. Trace whether vulnerable package functions are reachable from untrusted inputs.
+2. **Assign Reachability Status Badges:**
+   - `[DIRECTLY REACHABLE]`: The vulnerable library function/class is executed in production routes. Triggers immediate priority docket and strict remediation SLA.
+   - `[TRANSITIVE / UNVERIFIED]`: Dependency is in lockfile, but direct execution path is unconfirmed or requires specific unreachable conditions.
+   - `[UNREACHABLE]`: Code path dead, uninstantiated, or neutralized by defensive architectural boundaries.
 
 ---
 
@@ -524,23 +567,26 @@ For each domain, the agent executes structured test cases and records pass/fail/
 | TC-SSRF-004 | DNS Rebinding | Use Burp Collaborator / controlled DNS | No connection back | DNS rebinding exposure (High) |
 | TC-SSRF-005 | Schema Bypass | `file:///etc/passwd`, `gopher://`, `dict://` | All non-HTTP schemas blocked | Protocol bypass SSRF (Critical) |
 
-## TC-RUNTIME: Host Runtime & Engine Security (Domains 9 & 11)
+## TC-RUNTIME: Host Runtime & Engine Security (Domains 11 & 12)
 
 | TC-ID | Test Name | Action / Command | Expected (Pass) | Fail = Finding |
 | :--- | :--- | :--- | :--- | :--- |
 | **TC-RUNTIME-001** | Core Runtime Version & EOL / Patch Gap | Execute `php -v`, `node -v`, `python -V`, `dotnet --info`. Compare version against latest upstream security release & EOL calendar. Cross-reference NVD/CISA KEV for Zend Engine / V8 / CPython CVEs. | Active LTS/supported release; current patch release; 0 known unpatched engine CVEs. | Unpatched runtime in known vulnerable range (e.g. PHP 8.5.0–8.5.11 with CVE-2026-109618 Zend RCE) or EOL runtime (Critical/High). |
 | **TC-RUNTIME-002** | Runtime Engine Default Vector Hardening | Audit runtime config (`php.ini`, environment, or runtime options) for `session.upload_progress.enabled`, `allow_url_fopen/include`, `disable_functions`, `expose_php`. | `session.upload_progress.enabled = Off` (or strict cleanup); `allow_url_include = Off`; execution wrappers disabled; version headers masked. | `session.upload_progress` active with LFI/memory corruption vector; dangerous execution functions enabled; debug display in prod (High/Critical). |
 | **TC-RUNTIME-003** | Web Server Daemon & FastCGI Module Security | Inspect web server build (`nginx -V`, `httpd -v`), FastCGI / PHP-FPM socket configuration, process isolation, HTTP/2 multiplexing limits, and proxy buffer headers. | Daemon compiled with secure modules; FastCGI socket restricted (`0660 www-data:www-data`); HTTP/2 CONTINUATION mitigations applied; server tokens suppressed. | FastCGI socket world-readable/writable; unmitigated request smuggling; vulnerable daemon version with public exploit (High/Critical). |
+| **TC-RUNTIME-004** | Native System Library Dependencies | Inspect host system libraries (`openssl version`, `xml2-config --version`, `magick -version`, `curl --version`). Cross-reference NVD for memory safety CVEs. | System libraries patched to current LTS security baselines; legacy vulnerable image/XML parsers removed. | Outdated native library with known remote memory corruption or arbitrary code execution exploit (Critical/High). |
+| **TC-RUNTIME-005** | Dynamic CISA KEV & EPSS Threat Intel Correlation | Automatically query discovered runtime and package versions against CISA KEV and calculate EPSS percentile scores. | 0 matches in CISA KEV catalog; EPSS scores evaluated and documented in findings. | Match in CISA KEV Catalog triggers automatic Emergency Priority (P1 / Critical SLA: 24–48h) regardless of CVSS base score. |
+| **TC-RUNTIME-006** | Dependency Reachability & Static Call-Graph Analysis | Trace static call graphs from active routes to third-party dependencies. Differentiate directly invoked vulnerable methods from uncalled dead code. | All directly reachable dependencies verified free of known vulnerabilities. | Directly reachable vulnerable method (`[DIRECTLY REACHABLE]`) confirmed in active execution flow (High/Critical). |
 
 ---
 
 # 10. Pre-Fix Assessment Report Template
 
 ````markdown
-# Pre-Fix Application Security Assessment Report
+# Pre-Fix Application Security Assessment Report (ARS v4.0)
 **Application:** [Name] | **Environment:** [Dev/Test/Staging/Prod]
-**Mode:** [White/Gray/Black Box] | **Profile:** [Payment/SaaS/API/Admin/Healthcare]
-**Date:** [YYYY-MM-DD] | **Assessor:** Senior AppSec Engineer — Blue Team
+**Mode:** [White/Gray/Black Box] | **Profile:** [Payments/FinTech/Healthcare/SaaS/API/Admin]
+**Date:** [YYYY-MM-DD] | **Assessor:** Senior AppSec Engineer & Blue Team Lead — Techwaves EGY
 
 ---
 
@@ -554,7 +600,7 @@ For each domain, the agent executes structured test cases and records pass/fail/
 
 ---
 
-## 3. Security Posture Scorecard
+## 3. Security Posture Scorecard (12 Domains)
 
 | # | Domain | Score | Rating | Top Finding |
 | :- | :--- | :---: | :--- | :--- |
@@ -566,9 +612,10 @@ For each domain, the agent executes structured test cases and records pass/fail/
 | 6 | CSRF & State-Changing | X.X/10 | [Rating] | [Finding] |
 | 7 | SSRF & Perimeter | X.X/10 | [Rating] | [Finding] |
 | 8 | File Upload & Path Traversal | X.X/10 | [Rating] | [Finding] |
-| 9 | Cryptography, Secrets & Engine Config | X.X/10 | [Rating] | [Finding] |
+| 9 | Cryptography, Secrets & Transport | X.X/10 | [Rating] | [Finding] |
 | 10 | Logging, Auditing & SOC Telemetry | X.X/10 | [Rating] | [Finding] |
-| 11 | Software Supply Chain, SCA & Host Runtime | X.X/10 | [Rating] | [Finding] |
+| 11 | Application Supply Chain & Package SCA | X.X/10 | [Rating] | [Finding] |
+| 12 | Host Runtime Engine, Daemon & System Infrastructure | X.X/10 | [Rating] | [Finding] |
 
 ### **Overall Posture: X.X / 10.0** ([Rating])
 ```text
@@ -577,38 +624,64 @@ For each domain, the agent executes structured test cases and records pass/fail/
 
 ---
 
-## 4. Scope & Attack Surface
+## 4. Scope, Attack Surface & Host Runtime Stack
+
+### Target Applications & Endpoints:
 - **Endpoints:** [list]
 - **Roles Tested:** Unauthenticated → Standard → Manager → Admin
 - **Exclusions:** [list]
-- **CVE Library Check:** [any CVE matches from references/cve-library/ for in-scope dependencies]
+
+### Host Runtime & Infrastructure Stack Table:
+| Component | Detected Version | Build / Options | Architecture | CISA KEV / Threat Intel | Posture Status |
+| :--- | :--- | :--- | :--- | :---: | :--- |
+| **Host Runtime** | [PHP 8.5.4 / Node 20.x] | [Zend Engine v4.5.4 / V8] | [x64] | [⚠️ CISA KEV / CVE-XXXX] | [🔴 Critical / 🟢 Compliant] |
+| **Web Server** | [Nginx 1.26.1 / IIS 10] | [OpenSSL 3.0.13, HTTP/2] | [x64] | [Clean / No KEV] | [🟢 Compliant] |
+| **Database** | [PostgreSQL 16.3] | [Debian 16.3-1] | [x64] | [Clean / No KEV] | [🟢 Compliant] |
+| **Crypto Lib** | [OpenSSL 3.0.13] | [Shared System Library] | [x64] | [Clean / No KEV] | [🟢 Compliant] |
+
+> ⚠️ **CISA KEV & ACTIVE WEAPONIZATION ALERT:**
+> If any runtime or library matches the CISA KEV catalog, highlight it here:
+> - **CVE ID:** CVE-YYYY-NNNNN
+> - **Threat Actor Weaponization:** Active in-the-wild exploitation confirmed.
+> - **Mandatory SLA:** Emergency P1 Priority (24–48 hours).
 
 ---
 
-## 5. Detailed Vulnerability Dockets
+## 5. Detailed Vulnerability Dockets & Defensive Shields
 
-### [APP-001] — [Title]
+### [APP-001] — [Title] `[DIRECTLY REACHABLE]`
 | Field | Value |
 | :--- | :--- |
 | **Severity** | Critical / High / Medium / Low |
 | **CVSS v3.1** | [Score] — `[Vector String]` |
+| **EPSS Score** | 0.XXX ([XX.X]% percentile) |
+| **Reachability Status** | `[DIRECTLY REACHABLE]` / `[TRANSITIVE / UNVERIFIED]` / `[UNREACHABLE]` |
+| **CISA KEV Status** | YES (Active Weaponization) / None |
 | **CWE** | [CWE-ID](https://cwe.mitre.org/data/definitions/NNN.html) |
 | **Related CVE** | [CVE-YYYY-NNNNN](https://www.cve.org/CVERecord?id=CVE-YYYY-NNNNN) |
-| **OWASP** | [A0X — Category] |
-| **Test Domain** | [Domain Name] |
+| **OWASP Category** | [A0X — Category] |
+| **Assessment Domain** | Domain X: [Domain Name] |
 | **Test Case** | [TC-ID] |
 | **Component** | `[Method] /api/path/endpoint` |
 | **Preconditions** | [Auth state / role required] |
 
+#### Compliance Standards Mapping
+| Framework | Requirement / Control | Compliance Status |
+| :--- | :--- | :--- |
+| **OWASP ASVS 4.0** | V1.4.1, V5.1.3 | Non-Compliant |
+| **PCI DSS v4.0** | Requirement 6.2.4 | Non-Compliant |
+| **NIST SP 800-53 Rev. 5** | AC-3, SA-11, SI-2 | Non-Compliant |
+| **ISO/IEC 27001:2022** | Control A.8.28 (Secure Coding) | Non-Compliant |
+
 #### Description & Root Cause
-[Technical explanation]
+[Technical explanation of vulnerability and underlying architecture flaw]
 
 #### Evidence (Non-destructive Proof of Concept)
 ```http
 GET /api/v1/resource/12345 HTTP/1.1
 Authorization: Bearer <UserA_Token>
 ```
-**Response:** 200 OK with UserB's data — server does not validate ownership.
+**Response:** 200 OK with UserB's data — server does not validate object ownership.
 
 #### CVSS v3.1 Calculation
 | Metric | Value | Rationale |
@@ -623,10 +696,9 @@ Authorization: Bearer <UserA_Token>
 | Availability | None (N) | No impact |
 | **CVSS Score** | **6.5 (Medium)** | `CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N` |
 
-#### Business Impact
-[Consequence to the organization if exploited]
+#### Blue Team Defensive Shield Package
 
-#### Defensive Remediation Guidance
+##### Tier 1: Code-Level Defensive Patch
 ```python
 # VULNERABLE
 def get_order(order_id):
@@ -636,14 +708,24 @@ def get_order(order_id):
 def get_order(order_id, current_user_id):
     order = db.orders.find_one({"id": order_id, "userId": current_user_id})
     if not order:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail="Order not found")
     return order
 ```
 
-#### SOC Detection Rule
+##### Tier 2: Web Application Firewall (WAF) Rule
+```apache
+# ModSecurity / Coraza WAF Rule:
+SecRule REQUEST_URI "@rx ^/api/v1/orders/(\d+)"     "id:100201,phase:2,t:none,pass,nolog,setvar:tx.target_order_id=%{tx.1}"
+# AWS WAF / Cloudflare Regex:
+# ^/api/v1/orders/([0-9]+)$
+```
+
+##### Tier 3: SOC Detection Rule (Sigma v2.0)
 ```yaml
-title: IDOR Object Enumeration Attempt
-status: experimental
+title: Suspicious Multi-Order IDOR Enumeration Attempt
+id: 8f4e2a1b-3c5d-4e6f-a7b8-9c0d1e2f3a4b
+status: production
+description: Detects an authenticated client attempting to enumerate order resources across tenant boundaries.
 logsource:
   category: webserver
 detection:
@@ -653,7 +735,14 @@ detection:
   timeframe: 60s
   condition: selection | count() by c_ip > 20
 level: high
-tags: [attack.t1083, attack.t1078]
+tags:
+  - attack.t1083
+  - attack.t1078
+```
+
+##### Tier 4: Temporary Hotfix / Configuration Workaround
+```text
+Deploy API gateway header enforcement rule validating that the JWT tenant claim matches the resource namespace before forwarding upstream.
 ```
 
 #### Retest Procedure
@@ -661,18 +750,29 @@ tags: [attack.t1083, attack.t1078]
 
 ---
 
-### [APP-002] — Host Runtime Vulnerability: PHP Zend Engine Multipart Parser Memory Corruption / RCE (CVE-2026-109618)
+### [APP-002] — Host Runtime Vulnerability: PHP Zend Engine Multipart Parser Memory Corruption / RCE (CVE-2026-109618) `[DIRECTLY REACHABLE]`
 | Field | Value |
 | :--- | :--- |
 | **Severity** | 🔴 Critical |
 | **CVSS v3.1** | **9.8** — `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H` |
+| **EPSS Score** | 0.965 (96.5% percentile) |
+| **Reachability Status** | `[DIRECTLY REACHABLE]` |
+| **CISA KEV Status** | ⚠️ YES (Active Weaponization Confirmed) |
 | **CWE** | [CWE-122: Heap-based Buffer Overflow](https://cwe.mitre.org/data/definitions/122.html) |
 | **Related CVE** | [CVE-2026-109618](https://www.cve.org/CVERecord?id=CVE-2026-109618) / [CVE-2026-109619](https://www.cve.org/CVERecord?id=CVE-2026-109619) |
-| **OWASP** | A06:2021 — Vulnerable and Outdated Components |
-| **Test Domain** | Domain 11: Software Supply Chain, Dependencies (SCA) & Host Runtime Security |
+| **OWASP Category** | A06:2021 — Vulnerable and Outdated Components |
+| **Assessment Domain** | Domain 12: Host Runtime Engine, Daemon & System Infrastructure |
 | **Test Case** | TC-RUNTIME-001 |
 | **Component** | Host Runtime: `PHP 8.5.4 (cli) (Zend Engine v4.5.4)` via PHP-FPM / Nginx |
 | **Preconditions** | Unauthenticated remote access |
+
+#### Compliance Standards Mapping
+| Framework | Requirement / Control | Compliance Status |
+| :--- | :--- | :--- |
+| **OWASP ASVS 4.0** | V14.2.1 (Component Inventory & Patching) | Non-Compliant |
+| **PCI DSS v4.0** | Requirement 6.2 (Bespoke and Custom Software Security) | Non-Compliant |
+| **NIST SP 800-53 Rev. 5** | SI-2 (Flaw Remediation), SA-11 (Developer Security Testing) | Non-Compliant |
+| **ISO/IEC 27001:2022** | Control A.8.8 (Management of Technical Vulnerabilities) | Non-Compliant |
 
 #### Description & Root Cause
 Host runtime fingerprinting (`php -v`) revealed the application runs on PHP 8.5.4 (Zend Engine v4.5.4). This version falls directly within the known vulnerable release window (PHP 8.5.0 through 8.5.11) affected by heap-based memory corruption and integer underflow in the Zend Engine multipart body parser. When an unauthenticated remote attacker submits a malformed multipart/form-data boundary with specially crafted chunks, the parser miscalculates buffer allocation sizes, enabling arbitrary memory overwrite and potential remote code execution (RCE) in the web server process context.
@@ -704,38 +804,50 @@ Zend Engine v4.5.4, Copyright (c) Zend Technologies
 | Availability | High (H) | Process crash / DoS |
 | **CVSS Score** | **9.8 (Critical)** | `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H` |
 
-#### Defensive Remediation Guidance
-1. **Immediate Patch Upgrade (Primary Fix):**
-   Upgrade the host PHP binary and runtime packages to PHP 8.5.12 or latest stable upstream release:
-   ```bash
-   apt-get update && apt-get install --only-upgrade php8.5 php8.5-fpm php8.5-cli
-   systemctl restart php8.5-fpm && nginx -s reload
-   ```
-2. **Compensating Engine Hardening (`php.ini`):**
-   While scheduling the patch window, disable multipart upload progress and enforce defensive request body parsing limits in `php.ini`:
-   ```ini
-   session.upload_progress.enabled = Off
-   post_max_size = 10M
-   upload_max_filesize = 10M
-   max_file_uploads = 5
-   ```
+#### Blue Team Defensive Shield Package
 
-#### SOC Detection Rule (Sigma)
+##### Tier 1: Host Runtime Binary Upgrade (Primary Fix)
+```bash
+apt-get update && apt-get install --only-upgrade php8.5 php8.5-fpm php8.5-cli
+systemctl restart php8.5-fpm && nginx -s reload
+# Verify: php -v >= 8.5.12
+```
+
+##### Tier 2: Web Application Firewall (WAF) Rule
+```apache
+# Block malformed oversized multipart boundaries
+SecRule REQUEST_HEADERS:Content-Type "@rx (?i)multipart/form-data;.*boundary=.{128,}"     "id:100301,phase:1,deny,status:400,log,msg:'Potential Zend Engine Multipart Memory Corruption Probe (CVE-2026-109618)'"
+```
+
+##### Tier 3: SOC Detection Rule (Sigma v2.0)
 ```yaml
 title: Malformed Multipart Boundary Memory Corruption Probe
+id: c4e1a2b3-5d6e-7f8a-9b0c-1d2e3f4a5b6c
 status: production
+description: Detects probe attempts exploiting PHP Zend Engine multipart parser memory corruption.
 logsource:
   category: webserver
 detection:
   selection:
     cs_method: POST
-    c_content_type|contains: 'multipart/form-data; boundary='
-    cs_uri_stem|endswith: '.php'
+    c_content_type|contains: 'multipart/form-data'
   suspicious_boundary:
-    cs_header|re: 'boundary=[\-\=]{60,}[^\r\n]{128,}'
+    cs_header|re: 'boundary=[\-\=]{60,}[^
+]{128,}'
   condition: selection and suspicious_boundary
 level: critical
-tags: [attack.t1190, attack.t1203]
+tags:
+  - attack.t1190
+  - attack.t1203
+```
+
+##### Tier 4: Temporary Hotfix / Configuration Workaround (`php.ini`)
+```ini
+; Neutralize multipart session poisoning & enforce strict buffer limits
+session.upload_progress.enabled = Off
+post_max_size = 10M
+upload_max_filesize = 10M
+max_file_uploads = 5
 ```
 
 #### Retest Procedure
@@ -748,9 +860,10 @@ tags: [attack.t1190, attack.t1203]
 ## 6. Prioritized Remediation Roadmap
 | Priority | Timeline | Finding | Action |
 | :--- | :--- | :--- | :--- |
-| 🔴 Immediate | 0–48h | APP-001, APP-002 | Fix auth bypass and SQL injection |
-| 🟠 Short-term | 7–14d | APP-003 | Implement audit logging pipeline |
-| 🟡 Medium-term | 30d | APP-004 | Rotate secrets; add SCA gate |
+| 🔴 Emergency (P1) | 0–24h | APP-002 | Patch PHP Zend Engine (CVE-2026-109618 / CISA KEV) |
+| 🔴 Immediate (P2) | 24–48h | APP-001 | Implement ownership validation on Order Retrieval |
+| 🟠 Short-term | 7–14d | APP-003 | Implement audit logging & correlation ID pipeline |
+| 🟡 Medium-term | 30d | APP-004 | Rotate secrets; enforce CI/CD dependency SCA gate |
 
 ---
 
@@ -770,16 +883,24 @@ python scripts/generate_appsec_pdf.py --output reports/Pre-Fix-AppSec-Report-[Ap
 
 Display the exact local disk path and clickable link in your chat response:
 > 📄 **Executive PDF Report Generated:**
-> - **Disk File Location:** `<ABSOLUTE_DISK_PATH_TO_PDF>` (e.g., `D:\Techwaves-egy\Blue-Team-Skills\reports\Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf`)
+> - **Disk File Location:** `<ABSOLUTE_DISK_PATH_TO_PDF>` (e.g., `D:\Techwaves-egy\Blue-Team-Skills
+eports\Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf`)
 > - **Clickable Link:** [`Pre-Fix-AppSec-Report-[App]-[YYYY-MM-DD].pdf`](file:///<ABSOLUTE_URI_PATH>)
 
 ---
 
-### Approval Gate
+### Approval Gate & Interactive Sign-Off Checkboxes
 > 🛑 **MANDATORY HARD STOP:** 
 > - **DO NOT call any file editing, write, or patch tools.**
 > - **DO NOT proceed to Phase 2 in the same turn.**
-> - **END YOUR TURN IMMEDIATELY** and ask: *"Phase 1 Pre-Fix Assessment Report and PDF are ready for review. Do you approve proceeding to Phase 2 (Defensive Remediation & Retesting)?"*
+> - **END YOUR TURN IMMEDIATELY** and ask:
+>
+> *"Phase 1 Pre-Fix Assessment Report and Executive PDF have been generated. Stakeholder sign-off required:*
+> - *[ ] Technical Lead Verification (Domain scores, findings, and CVSS confirmed)*
+> - *[ ] Architecture & Production Change Control Clearance (Rollback plan ready)*
+> - *[ ] Authorization to Proceed to Phase 2 (Defensive Remediation & Retesting)*
+> 
+> *Do you approve proceeding to Phase 2?"*
 ````
 
 ---
@@ -875,20 +996,31 @@ When CI/CD access is available, assess the build pipeline:
 
 ---
 
-# 15. CVE Library Integration
+# 15. Dynamic Threat Intelligence & Live Exploit Correlation
 
-The repository maintains a live CVE library at `references/cve-library/` updated daily via GitHub Actions.
+The repository maintains an active threat intelligence pipeline and CVE library at `references/cve-library/` continuously synchronized with NVD, CVE.org, and CISA KEV.
 
-**During assessment, the agent must:**
-1. Check `references/cve-library/` for CVEs matching identified dependencies.
-2. Reference CVE IDs in finding dockets where applicable.
-3. Flag any **CISA KEV (Known Exploited Vulnerability)** entries as immediate priority.
-4. Include library match summary in Pre-Fix Report Section 4.
+### 15.1 Real-Time CISA KEV Integration
+During Phase 1 assessment, cross-reference all discovered runtime versions, frameworks, and third-party packages against the **CISA Known Exploited Vulnerabilities (KEV) Catalog**:
+- **MANDATORY OVERRIDE:** Any match in the CISA KEV catalog triggers an **Emergency Priority (P1 / Critical SLA: 24–48h)** regardless of CVSS base score.
+- Active in-the-wild exploitation overrides theoretical scoring and requires immediate defensive WAF/hotfix neutralization while code patches are scheduled.
 
-**Manual CVE search:**
+### 15.2 EPSS (Exploit Prediction Scoring System) Correlation
+For every docketed vulnerability:
+- Calculate or look up the EPSS score and percentile (e.g., `EPSS: 0.965 / 96.5% percentile`).
+- High EPSS percentiles (>80%) indicate widespread automated scanning or weaponized exploit kits, mandating prioritized remediation in Section 6 roadmap.
+
+### 15.3 Critical Runtime Engine Advisories
+Actively verify against pre-loaded critical engine RCEs:
+- **PHP Zend Engine:** CVE-2026-109618 / CVE-2026-109619 (`longjmp` memory corruption in multipart parser, affects PHP 8.5.0–8.5.11).
+- **PHP cgi-bin:** CVE-2024-4577 (Windows argument injection RCE).
+- **Node.js:** HTTP request smuggling & permission model bypasses.
+- **OpenSSL:** Punycode memory corruption (CVE-2022-3602 / CVE-2022-3786).
+
+### 15.4 Manual Threat Intelligence Commands
 ```bash
-# Search by keyword
-grep -ri "log4j" references/cve-library/
+# Search CVE library by keyword
+grep -ri "Zend" references/cve-library/
 
 # Find Critical CVEs only
 grep -r "CRITICAL" references/cve-library/ --include="*.md"
@@ -897,7 +1029,7 @@ grep -r "CRITICAL" references/cve-library/ --include="*.md"
 grep -r "CISA KEV" references/cve-library/ --include="*.md"
 
 # Search by CWE
-grep -r "CWE-89" references/cve-library/ --include="*.md"
+grep -r "CWE-122" references/cve-library/ --include="*.md"
 ```
 
 ---

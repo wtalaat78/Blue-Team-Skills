@@ -50,7 +50,10 @@
 | **Two-Phase Workflow** | Mandatory Pre-Fix Assessment Report before applying any code remediation |
 | **Executive PDF Reports** | Auto-generates branded PDF reports with **Techwaves EGY** logo & contact (`info@techwaves-egy.com`) |
 | **Host Runtime & Engine SCA** | Bridges SAST with host execution environment; fingerprints PHP Zend Engine, Node.js V8, CPython, web servers for engine-level RCEs (e.g. CVE-2026-109618/19) |
-| **11-Domain Scoring** | 0–10 rating per domain with granular, rubric-driven scoring |
+| **12-Domain Scoring (v4.0)** | 0–10 rating across 12 domains: Auth, Authz, Injection, XSS, API, CSRF, SSRF, Upload, Crypto, Telemetry, App SCA, and Host Runtime |
+| **Reachability Analysis** | Differentiates installed vs directly invoked dependencies ([DIRECTLY REACHABLE]) |
+| **4-Tier Defense Kits** | Generates Code Patch, WAF Rule, Sigma Rule v2.0, and Config Workaround for every finding |
+| **CISA KEV & EPSS Intel** | Real-time weaponization correlation triggering automatic P1 Critical SLA (24–48h) |
 | **Weighted Scoring** | Application profile weighting: Payments, Healthcare, SaaS, Admin, API |
 | **STRIDE Threat Modeling** | Automated Data Flow Diagram & S/T/R/I/D/E analysis before testing |
 | **Test Case Library** | Standardized test cases: `TC-AUTH`, `TC-AUTHZ`, `TC-INJ`, `TC-XSS`, `TC-SSRF`, `TC-RUNTIME` |
@@ -193,7 +196,7 @@ Blue-Team-Skills/
 │   └── appsec-system-prompt.md         ← Portable prompt for ChatGPT, Custom GPTs, APIs
 ├── skills/
 │   ├── internal-appsec-testing/
-│   │   └── SKILL.md                    ← Main AppSec testing skill runbook (v3.0)
+│   │   └── SKILL.md                    ← Main AppSec testing skill runbook (v4.0 Enterprise ARS)
 │   └── appsec/
 │       └── SKILL.md                    ← Shortcut alias (/appsec)
 ├── references/

@@ -1,16 +1,17 @@
 ---
-description: Comprehensive AppSec & authorized security testing workflow (OWASP Top 10, STRIDE, CVSS v3.1, 11-domain scoring, Host Runtime SCA, Pre-Fix reports, and SOC detection rules)
+description: Blue-Team-Skills v4.0 Full-Spectrum Application & Runtime Security (ARS) workflow (OWASP Top 10, STRIDE, CVSS v3.1, EPSS, CISA KEV, 12-domain scoring, Host Runtime SCA, 4-tier Defense Shields, Pre-Fix reports, and SOC telemetry)
 globs: *
 ---
 
-# Internal Application Security Testing & Defensive Engineering
+# Internal Application Security Testing & Defensive Engineering (v4.0 ARS)
 
 When reviewing code, evaluating architecture, or testing for vulnerabilities:
 
 - **Two-Phase Enforcement & Mandatory Hard Stop**: Always present the Pre-Fix Security Assessment Report and compile the executive PDF (`python scripts/generate_appsec_pdf.py` with Techwaves EGY header and contact `info@techwaves-egy.com`). Provide both the full disk file path (e.g. `D:\Techwaves-egy\Blue-Team-Skills\reports\...pdf`) and clickable link to the user, then immediately STOP calling tools and end your turn. Never modify code or run fixes until the user explicitly approves in a subsequent turn.
-- **Host Runtime Infrastructure Bridge**: In Phase 1, actively fingerprint underlying execution runtimes (`php -v`, `node -v`, `python -V`, web servers). Check for known engine CVEs (e.g. Zend Engine RCEs CVE-2026-109618/19) and dangerous engine directives (`session.upload_progress.enabled`, `disable_functions`).
-- **11-Domain Security Scoring**: Score each domain out of 10.0 using standardized rubrics (0.0-2.9 Critical, 3.0-4.9 High, 5.0-6.9 Medium, 7.0-8.9 Good, 9.0-10.0 Exemplary).
-- **Test Case Standards**: Use test procedures from `skills/internal-appsec-testing/SKILL.md` (e.g., TC-AUTH, TC-AUTHZ, TC-INJ, TC-XSS, TC-SSRF, TC-RUNTIME).
-- **Vulnerability Dockets**: Include CVSS v3.1 calculation table, CWE reference, reproducible proof-of-concept, defensive code remediation, and Sigma/KQL telemetry rule.
+- **Host Runtime Infrastructure Bridge (Domain 12)**: In Phase 1, actively fingerprint underlying execution runtimes (`php -v`, `node -v`, `python -V`, web servers). Check for known engine CVEs (e.g. Zend Engine RCEs CVE-2026-109618/19) and dangerous engine directives (`session.upload_progress.enabled`, `disable_functions`, `allow_url_include`).
+- **Dependency Reachability Analysis (Domain 11)**: Separate installed packages from reachable execution paths. Tag findings as `[DIRECTLY REACHABLE]`, `[TRANSITIVE / UNVERIFIED]`, or `[UNREACHABLE]`.
+- **12-Domain Security Scoring**: Score each domain out of 10.0 using standardized rubrics (0.0-2.9 Critical, 3.0-4.9 High, 5.0-6.9 Medium, 7.0-8.9 Good, 9.0-10.0 Exemplary).
+- **Test Case Standards**: Use test procedures from `skills/internal-appsec-testing/SKILL.md` (`TC-AUTH`, `TC-AUTHZ`, `TC-INJ`, `TC-XSS`, `TC-SSRF`, `TC-RUNTIME-001` through `TC-RUNTIME-006`).
+- **Vulnerability Dockets**: Include CVSS v3.1 calculation, EPSS percentile, CISA KEV status, CWE link, compliance mappings (OWASP ASVS 4.0, PCI DSS v4.0, NIST SP 800-53, ISO 27001), reproducible PoC, and 4-tier Defensive Shields (Code Patch, WAF Rule, Sigma v2.0 Rule, Temporary Workaround).
 - **CVE Cross-Referencing**: Check `references/cve-library/` (including `host_runtime_and_engine_sca.md`) for known vulnerabilities in third-party dependencies and host execution runtimes.
 - **Threat Modeling**: Apply STRIDE analysis (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege) on high-risk application data flows.
