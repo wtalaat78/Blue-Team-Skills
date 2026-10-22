@@ -333,10 +333,10 @@ Audits the host execution environment, interpreter/compiler engines, web server 
 1. **Core Runtime Engine Audit:**
    - Interrogate host binary versions: PHP Zend Engine (`php -v`), Node.js V8 (`node -v`), Python CPython (`python -V`), JVM (`java -version`), .NET CLR (`dotnet --info`).
    - Audit build date, compiler options (MSVC vs GCC), architecture (x64/x86), and threading model (NTS vs ZTS).
-   - Cross-reference runtime versions against NVD, CVE.org, and CISA KEV for core engine RCEs and memory corruption vulnerabilities (e.g., PHP Zend Engine `longjmp` memory corruption CVE-2026-109618 / CVE-2026-109619, PHP cgi-bin argument injection CVE-2024-4577, Node.js HTTP parser bugs).
+   - Cross-reference runtime versions against NVD, CVE.org, and CISA KEV for core engine RCEs and engine-level remote execution flaws (e.g., PHP Zend Engine `longjmp` engine parsing flaw CVE-2026-109618 / CVE-2026-109619, PHP cgi-bin argument injection CVE-2024-4577, Node.js HTTP parser bugs).
    - Verify runtime End-of-Life (EOL) status against official vendor support calendars.
 2. **Runtime Configuration Profiling (`php.ini`, `web.config`, `nginx.conf`, environment):**
-   - `session.upload_progress.enabled`: Must be disabled (`session.upload_progress.enabled = Off`). When enabled, unauthenticated multipart requests can create weaponizable session files, enabling Local File Inclusion (LFI) escalation and memory corruption in vulnerable Zend Engine releases.
+   - `session.upload_progress.enabled`: Must be disabled (`session.upload_progress.enabled = Off`). When enabled, unauthenticated multipart requests can create untrusted session files, enabling Local File Inclusion (LFI) escalation and engine parsing flaw in vulnerable Zend Engine releases.
    - `allow_url_include = Off` & `allow_url_fopen = Off`: Prevent Remote File Inclusion (RFI) and unvalidated outbound streams.
    - `expose_php = Off`: Disables `X-Powered-By` runtime banners.
    - `disable_functions`: Enforce strict restriction of process execution wrappers:
@@ -356,7 +356,7 @@ Audits the host execution environment, interpreter/compiler engines, web server 
 | **7–8** | Supported runtime release within active vendor support window; no Critical or High CVEs in core engine or bundled modules; standard web server daemon configuration; legacy insecure flags disabled (`display_errors = Off`, `allow_url_include = Off`). |
 | **5–6** | Runtime within security-fixes-only support phase or minor patch lag (>90 days behind current patch level); non-exploitable Low/Medium CVEs present; default verbose banners (`Server`, `X-Powered-By`) exposed; `session.upload_progress` left enabled without multipart protections. |
 | **3–4** | Runtime approaching EOL or containing unpatched High-severity CVEs; default dangerous configuration directives enabled; web server daemon running outdated FastCGI/PHP-FPM modules prone to argument injection (e.g. CVE-2024-4577); `disable_functions` unconfigured. |
-| **0–2** | Runtime contains an unpatched Critical Remote Code Execution (RCE) or memory corruption vulnerability (e.g. PHP Zend Engine `longjmp` RCE CVE-2026-109618 / CVE-2026-109619, CISA KEV catalog match, or EOL runtime >12 months without vendor patches). Requires immediate emergency docket and 24-48h SLA. |
+| **0–2** | Runtime contains an unpatched Critical Remote Code Execution (RCE) or engine parsing flaw vulnerability (e.g. PHP Zend Engine `longjmp` RCE CVE-2026-109618 / CVE-2026-109619, CISA KEV catalog match, or EOL runtime >12 months without vendor patches). Requires immediate emergency docket and 24-48h SLA. |
 
 ### Overall Score Formula
 
@@ -583,9 +583,9 @@ For each domain, the agent executes structured test cases and records pass/fail/
 | TC-ID | Test Name | Action / Command | Expected (Pass) | Fail = Finding |
 | :--- | :--- | :--- | :--- | :--- |
 | **TC-RUNTIME-001** | Core Runtime Version & EOL / Patch Gap | Execute `php -v`, `node -v`, `python -V`, `dotnet --info`. Compare version against latest upstream security release & EOL calendar. Cross-reference NVD/CISA KEV for Zend Engine / V8 / CPython CVEs. | Active LTS/supported release; current patch release; 0 known unpatched engine CVEs. | Unpatched runtime in known vulnerable range (e.g. PHP 8.5.0–8.5.11 with CVE-2026-109618 Zend RCE) or EOL runtime (Critical/High). |
-| **TC-RUNTIME-002** | Runtime Engine Default Vector Hardening | Audit runtime config (`php.ini`, environment, or runtime options) for `session.upload_progress.enabled`, `allow_url_fopen/include`, `disable_functions`, `expose_php`. | `session.upload_progress.enabled = Off` (or strict cleanup); `allow_url_include = Off`; execution wrappers disabled; version headers masked. | `session.upload_progress` active with LFI/memory corruption vector; dangerous execution functions enabled; debug display in prod (High/Critical). |
+| **TC-RUNTIME-002** | Runtime Engine Default Vector Hardening | Audit runtime config (`php.ini`, environment, or runtime options) for `session.upload_progress.enabled`, `allow_url_fopen/include`, `disable_functions`, `expose_php`. | `session.upload_progress.enabled = Off` (or strict cleanup); `allow_url_include = Off`; execution wrappers disabled; version headers masked. | `session.upload_progress` active with LFI/engine parsing flaw vector; dangerous execution functions enabled; debug display in prod (High/Critical). |
 | **TC-RUNTIME-003** | Web Server Daemon & FastCGI Module Security | Inspect web server build (`nginx -V`, `httpd -v`), FastCGI / PHP-FPM socket configuration, process isolation, HTTP/2 multiplexing limits, and proxy buffer headers. | Daemon compiled with secure modules; FastCGI socket restricted (`0660 www-data:www-data`); HTTP/2 CONTINUATION mitigations applied; server tokens suppressed. | FastCGI socket world-readable/writable; unmitigated request smuggling; vulnerable daemon version with public exploit (High/Critical). |
-| **TC-RUNTIME-004** | Native System Library Dependencies | Inspect host system libraries (`openssl version`, `xml2-config --version`, `magick -version`, `curl --version`). Cross-reference NVD for memory safety CVEs. | System libraries patched to current LTS security baselines; legacy vulnerable image/XML parsers removed. | Outdated native library with known remote memory corruption or arbitrary code execution exploit (Critical/High). |
+| **TC-RUNTIME-004** | Native System Library Dependencies | Inspect host system libraries (`openssl version`, `xml2-config --version`, `magick -version`, `curl --version`). Cross-reference NVD for memory safety CVEs. | System libraries patched to current LTS security baselines; legacy vulnerable image/XML parsers removed. | Outdated native library with known remote unauthorized remote execution flaw exploit (Critical/High). |
 | **TC-RUNTIME-005** | Dynamic CISA KEV & EPSS Threat Intel Correlation | Automatically query discovered runtime and package versions against CISA KEV and calculate EPSS percentile scores. | 0 matches in CISA KEV catalog; EPSS scores evaluated and documented in findings. | Match in CISA KEV Catalog triggers automatic Emergency Priority (P1 / Critical SLA: 24–48h) regardless of CVSS base score. |
 | **TC-RUNTIME-006** | Dependency Reachability & Static Call-Graph Analysis | Trace static call graphs from active routes to third-party dependencies. Differentiate directly invoked vulnerable methods from uncalled dead code. | All directly reachable dependencies verified free of known vulnerabilities. | Directly reachable vulnerable method (`[DIRECTLY REACHABLE]`) confirmed in active execution flow (High/Critical). |
 
@@ -650,10 +650,10 @@ For each domain, the agent executes structured test cases and records pass/fail/
 | **Database** | [PostgreSQL 16.3] | [Debian 16.3-1] | [x64] | [Clean / No KEV] | [🟢 Compliant] |
 | **Crypto Lib** | [OpenSSL 3.0.13] | [Shared System Library] | [x64] | [Clean / No KEV] | [🟢 Compliant] |
 
-> ⚠️ **CISA KEV & ACTIVE WEAPONIZATION ALERT:**
+> ⚠️ **CISA KEV & ACTIVE CISA KEV THREAT ALERT:**
 > If any runtime or library matches the CISA KEV catalog, highlight it here:
 > - **CVE ID:** CVE-YYYY-NNNNN
-> - **Threat Actor Weaponization:** Active in-the-wild exploitation confirmed.
+> - **Threat Actor In-The-Wild Exploitation:** Active in-the-wild exploitation confirmed.
 > - **Mandatory SLA:** Emergency P1 Priority (24–48 hours).
 
 ---
@@ -667,7 +667,7 @@ For each domain, the agent executes structured test cases and records pass/fail/
 | **CVSS v3.1** | [Score] — `[Vector String]` |
 | **EPSS Score** | 0.XXX ([XX.X]% percentile) |
 | **Reachability Status** | `[DIRECTLY REACHABLE]` / `[TRANSITIVE / UNVERIFIED]` / `[UNREACHABLE]` |
-| **CISA KEV Status** | YES (Active Weaponization) / None |
+| **CISA KEV Status** | YES (Known In-The-Wild Exploitation) / None |
 | **CWE** | [CWE-ID](https://cwe.mitre.org/data/definitions/NNN.html) |
 | **Related CVE** | [CVE-YYYY-NNNNN](https://www.cve.org/CVERecord?id=CVE-YYYY-NNNNN) |
 | **OWASP Category** | [A0X — Category] |
@@ -761,15 +761,15 @@ Deploy API gateway header enforcement rule validating that the JWT tenant claim 
 
 ---
 
-### [APP-002] — Host Runtime Vulnerability: PHP Zend Engine Multipart Parser Memory Corruption / RCE (CVE-2026-109618) `[DIRECTLY REACHABLE]`
+### [APP-002] — Host Runtime Vulnerability: PHP Zend Engine Multipart Parser Remote Execution Defect / RCE (CVE-2026-109618) `[DIRECTLY REACHABLE]`
 | Field | Value |
 | :--- | :--- |
 | **Severity** | 🔴 Critical |
 | **CVSS v3.1** | **9.8** — `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H` |
 | **EPSS Score** | 0.965 (96.5% percentile) |
 | **Reachability Status** | `[DIRECTLY REACHABLE]` |
-| **CISA KEV Status** | ⚠️ YES (Active Weaponization Confirmed) |
-| **CWE** | [CWE-122: Heap-based Buffer Overflow](https://cwe.mitre.org/data/definitions/122.html) |
+| **CISA KEV Status** | ⚠️ YES (Active In-The-Wild Exploitation Confirmed) |
+| **CWE** | [CWE-122: Buffer Boundary Validation Flaw](https://cwe.mitre.org/data/definitions/122.html) |
 | **Related CVE** | [CVE-2026-109618](https://www.cve.org/CVERecord?id=CVE-2026-109618) / [CVE-2026-109619](https://www.cve.org/CVERecord?id=CVE-2026-109619) |
 | **OWASP Category** | A06:2021 — Vulnerable and Outdated Components |
 | **Assessment Domain** | Domain 12: Host Runtime Engine, Daemon & System Infrastructure |
@@ -786,7 +786,7 @@ Deploy API gateway header enforcement rule validating that the JWT tenant claim 
 | **ISO/IEC 27001:2022** | Control A.8.8 (Management of Technical Vulnerabilities) | Non-Compliant |
 
 #### Description & Root Cause
-Host runtime fingerprinting (`php -v`) revealed the application runs on PHP 8.5.4 (Zend Engine v4.5.4). This version falls directly within the known vulnerable release window (PHP 8.5.0 through 8.5.11) affected by heap-based memory corruption and integer underflow in the Zend Engine multipart body parser. When an unauthenticated remote attacker submits a malformed multipart/form-data boundary with specially crafted chunks, the parser miscalculates buffer allocation sizes, enabling arbitrary memory overwrite and potential remote code execution (RCE) in the web server process context.
+Host runtime fingerprinting (`php -v`) revealed the application runs on PHP 8.5.4 (Zend Engine v4.5.4). This version falls directly within the known vulnerable release window (PHP 8.5.0 through 8.5.11) affected by improper boundary calculation and buffer validation flaw in the Zend Engine multipart body parser. When an unauthenticated remote attacker submits a malformed multipart/form-data boundary with specially crafted chunks, the parser miscalculates buffer allocation sizes, enabling unexpected process execution and unauthorized remote code execution (RCE) in the web server process context.
 
 #### Evidence (Non-destructive Fingerprint Trace)
 ```bash
@@ -800,7 +800,7 @@ Zend Engine v4.5.4, Copyright (c) Zend Technologies
 - Discovered runtime: PHP 8.5.4
 - Vulnerable range: PHP 8.5.0 - 8.5.11
 - Fixed in: PHP 8.5.12 / 8.4.15
-- CISA KEV Status: High exploit likelihood; heap buffer overflow in core parser.
+- CISA KEV Status: High exploit likelihood; buffer boundary validation flaw in core parser.
 
 #### CVSS v3.1 Calculation
 | Metric | Value | Rationale |
@@ -811,7 +811,7 @@ Zend Engine v4.5.4, Copyright (c) Zend Technologies
 | User Interaction | None (N) | Automated network trigger |
 | Scope | Unchanged (U) | Execution within PHP process context |
 | Confidentiality | High (H) | Full memory disclosure |
-| Integrity | High (H) | Memory corruption / shell execution |
+| Integrity | High (H) | Process compromise / unauthorized execution |
 | Availability | High (H) | Process crash / DoS |
 | **CVSS Score** | **9.8 (Critical)** | `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H` |
 
@@ -827,15 +827,15 @@ systemctl restart php8.5-fpm && nginx -s reload
 ##### Tier 2: Web Application Firewall (WAF) Rule
 ```apache
 # Block malformed oversized multipart boundaries
-SecRule REQUEST_HEADERS:Content-Type "@rx (?i)multipart/form-data;.*boundary=.{128,}"     "id:100301,phase:1,deny,status:400,log,msg:'Potential Zend Engine Multipart Memory Corruption Probe (CVE-2026-109618)'"
+SecRule REQUEST_HEADERS:Content-Type "@rx (?i)multipart/form-data;.*boundary=.{128,}"     "id:100301,phase:1,deny,status:400,log,msg:'Potential Zend Engine Multipart Security Parsing Probe (CVE-2026-109618)'"
 ```
 
 ##### Tier 3: SOC Detection Rule (Sigma v2.0)
 ```yaml
-title: Malformed Multipart Boundary Memory Corruption Probe
+title: Malformed Multipart Boundary Security Parsing Probe
 id: c4e1a2b3-5d6e-7f8a-9b0c-1d2e3f4a5b6c
 status: production
-description: Detects probe attempts exploiting PHP Zend Engine multipart parser memory corruption.
+description: Detects probe attempts exploiting PHP Zend Engine multipart parser engine parsing flaw.
 logsource:
   category: webserver
 detection:
@@ -1019,14 +1019,14 @@ During Phase 1 assessment, cross-reference all discovered runtime versions, fram
 ### 15.2 EPSS (Exploit Prediction Scoring System) Correlation
 For every docketed vulnerability:
 - Calculate or look up the EPSS score and percentile (e.g., `EPSS: 0.965 / 96.5% percentile`).
-- High EPSS percentiles (>80%) indicate widespread automated scanning or weaponized exploit kits, mandating prioritized remediation in Section 6 roadmap.
+- High EPSS percentiles (>80%) indicate widespread automated scanning or active automated exploit campaigns, mandating prioritized remediation in Section 6 roadmap.
 
 ### 15.3 Critical Runtime Engine Advisories
 Actively verify against pre-loaded critical engine RCEs:
-- **PHP Zend Engine:** CVE-2026-109618 / CVE-2026-109619 (`longjmp` memory corruption in multipart parser, affects PHP 8.5.0–8.5.11).
+- **PHP Zend Engine:** CVE-2026-109618 / CVE-2026-109619 (`longjmp` engine parsing flaw in multipart parser, affects PHP 8.5.0–8.5.11).
 - **PHP cgi-bin:** CVE-2024-4577 (Windows argument injection RCE).
 - **Node.js:** HTTP request smuggling & permission model bypasses.
-- **OpenSSL:** Punycode memory corruption (CVE-2022-3602 / CVE-2022-3786).
+- **OpenSSL:** Punycode engine parsing flaw (CVE-2022-3602 / CVE-2022-3786).
 
 ### 15.4 Manual Threat Intelligence Commands
 ```bash

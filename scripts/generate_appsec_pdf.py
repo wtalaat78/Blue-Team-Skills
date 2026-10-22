@@ -242,7 +242,7 @@ def generate_pdf_report(
     # CISA KEV / Real-World Weaponization Alert Box
     active_cisa = cisa_alert or {
         "active": True,
-        "title": "CISA KEV & ACTIVE WEAPONIZATION ALERT: PHP Zend Engine RCE (CVE-2026-109618)",
+        "title": "CISA KEV & ACTIVE CISA KEV THREAT ALERT: PHP Zend Engine RCE (CVE-2026-109618)",
         "details": "Host runtime discovery identified PHP 8.5.4 (vulnerable range 8.5.0–8.5.11). This flaw is actively cataloged in CISA KEV with observed in-the-wild exploitation. An automatic Emergency Priority (P1 / Critical SLA: 24–48h) has been enforced."
     }
     if active_cisa.get("active"):
@@ -392,20 +392,20 @@ def generate_pdf_report(
         },
         {
             "id": "APP-002",
-            "title": "Host Runtime: PHP Zend Engine Multipart Parser Memory Corruption / RCE",
+            "title": "Host Runtime: PHP Zend Engine Multipart Parser Remote Execution Defect / RCE",
             "severity": "Critical",
             "cvss": "9.8",
             "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
             "epss": "0.965 (96.5% percentile)",
             "reachability": "[DIRECTLY REACHABLE]",
-            "cisa_kev": "YES (Active Weaponization)",
+            "cisa_kev": "YES (Known In-The-Wild Exploitation)",
             "cwe": "CWE-122",
             "asvs": "V14.2.1",
             "pci": "Req 6.2",
             "nist": "SI-2, SA-11",
             "iso": "Control A.8.8",
             "endpoint": "Host Runtime: PHP 8.5.4 via Nginx FastCGI",
-            "desc": "Host runtime discovery identified PHP 8.5.4 (Zend Engine v4.5.4). This release suffers from heap-based memory corruption and integer underflow in the core multipart body parser. Active CISA KEV weaponization allows remote unauthenticated attackers to execute arbitrary code via specially crafted multipart chunk boundaries.",
+            "desc": "Host runtime discovery identified PHP 8.5.4 (Zend Engine v4.5.4). This release suffers from improper boundary calculation and buffer validation flaw in the core multipart body parser. Active CISA KEV in-the-wild exploitation allows remote unauthenticated attackers to execute arbitrary code via specially crafted multipart chunk boundaries.",
             "poc": "$ php -v\nPHP 8.5.4 (cli) (built: Feb 12 2026 14:22:10) (NTS)\nZend Engine v4.5.4, Copyright (c) Zend Technologies\n[!] Version falls within known vulnerable range: PHP 8.5.0 - 8.5.11 (CVE-2026-109618)",
             "patch": "# Host Runtime Upgrade Procedure\napt-get update && apt-get install --only-upgrade php8.5 php8.5-fpm php8.5-cli\nsystemctl restart php8.5-fpm && nginx -s reload\n# Verify: php -v >= 8.5.12",
             "waf": "SecRule REQUEST_HEADERS:Content-Type \"@rx (?i)multipart/form-data;.*boundary=.{128,}\" \"id:100301,phase:1,deny,status:400,log,msg:'Potential Zend Engine Multipart RCE Probe (CVE-2026-109618)'\"",

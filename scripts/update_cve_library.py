@@ -54,10 +54,10 @@ SEARCH_PROFILES = [
     {"keyword": "open redirect",               "owasp": "A01-BrokenAccessControl",    "domain": "Authorization & IDOR/BOLA"},
     {"keyword": "mass assignment",             "owasp": "A04-InsecureDesign",         "domain": "API & Business Logic"},
     {"keyword": "PHP Zend engine remote code execution", "owasp": "A06-VulnerableComponents", "domain": "Host Runtime & Engine SCA"},
-    {"keyword": "PHP multipart upload memory corruption", "owasp": "A06-VulnerableComponents", "domain": "Host Runtime & Engine SCA"},
+    {"keyword": "PHP multipart upload parsing flaw", "owasp": "A06-VulnerableComponents", "domain": "Host Runtime & Engine SCA"},
     {"keyword": "Node.js V8 runtime permission bypass", "owasp": "A06-VulnerableComponents", "domain": "Host Runtime & Engine SCA"},
     {"keyword": "FastCGI HTTP desync request smuggling", "owasp": "A05-SecurityMisconfiguration", "domain": "Host Runtime & Engine SCA"},
-    {"keyword": "Python ctypes memory corruption", "owasp": "A06-VulnerableComponents", "domain": "Host Runtime & Engine SCA"},
+    {"keyword": "Python ctypes buffer flaw", "owasp": "A06-VulnerableComponents", "domain": "Host Runtime & Engine SCA"},
 ]
 
 SEVERITY_LEVELS = ["CRITICAL", "HIGH"]

@@ -341,7 +341,7 @@ Each test looks like this:
 [TC-RUNTIME-002] Runtime Engine Directive Hardening (Domain 9)
   Testing: Audited php.ini for session.upload_progress.enabled & disable_functions...
   Result: ⚠️ FAIL — session.upload_progress.enabled = On with active upload vector!
-  Finding: APP-003 (High) — Insecure runtime upload progress memory corruption vector
+  Finding: APP-003 (High) — Insecure runtime upload progress parsing flaw
 ```
 
 ---
